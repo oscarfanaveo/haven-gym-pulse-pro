@@ -1,7 +1,7 @@
 
 import { 
   Users, ShoppingBag, Dumbbell, TrendingUp, 
-  DollarSign, Calendar, Clock 
+  DollarSign, Calendar, Clock, BarChart 
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -89,7 +89,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="h-72 flex items-center justify-center">
             <div className="text-center text-white/60">
-              <BarChart2 size={64} className="mx-auto mb-4 text-haven-red" />
+              <BarChart size={64} className="mx-auto mb-4 text-haven-red" />
               <p>Revenue chart visualization will be displayed here</p>
             </div>
           </CardContent>
