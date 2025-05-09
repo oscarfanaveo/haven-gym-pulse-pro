@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { 
-  Users, ShoppingBag, BarChart2, Dumbbell, Home, 
+  Users, ShoppingBag, BarChart, Dumbbell, Home, 
   ChevronLeft, ChevronRight, LogOut 
 } from "lucide-react";
 
@@ -44,7 +44,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               }
             >
               <Home size={20} />
-              {open && <span>Dashboard</span>}
+              {open && <span>Panel Principal</span>}
             </NavLink>
           </li>
           <li>
@@ -55,7 +55,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               }
             >
               <Users size={20} />
-              {open && <span>Subscriptions</span>}
+              {open && <span>Suscripciones</span>}
             </NavLink>
           </li>
           <li>
@@ -66,7 +66,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               }
             >
               <ShoppingBag size={20} />
-              {open && <span>Products</span>}
+              {open && <span>Productos</span>}
             </NavLink>
           </li>
           <li>
@@ -76,8 +76,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 `nav-link ${isActive ? "active" : ""}`
               }
             >
-              <BarChart2 size={20} />
-              {open && <span>Reports</span>}
+              <BarChart size={20} />
+              {open && <span>Reportes</span>}
             </NavLink>
           </li>
           <li>
@@ -88,7 +88,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               }
             >
               <Dumbbell size={20} />
-              {open && <span>Training</span>}
+              {open && <span>Entrenamiento</span>}
             </NavLink>
           </li>
         </ul>
@@ -100,7 +100,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <>
               <span className="flex items-center">
                 <LogOut size={20} className="mr-2" />
-                Sign Out
+                Cerrar Sesión
               </span>
             </>
           ) : (

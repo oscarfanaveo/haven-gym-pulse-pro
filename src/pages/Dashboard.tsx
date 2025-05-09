@@ -10,12 +10,12 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-white">Dashboard</h2>
-          <p className="text-white/60">Welcome to Haven Gym management system</p>
+          <h2 className="text-3xl font-bold text-white">Panel Principal</h2>
+          <p className="text-white/60">Bienvenido al sistema de gestión de Haven Gym</p>
         </div>
         <p className="text-white/60 mt-2 md:mt-0">
           <Clock className="inline-block mr-1" size={16} />
-          <span>Today, {new Date().toLocaleDateString()}</span>
+          <span>Hoy, {new Date().toLocaleDateString()}</span>
         </p>
       </div>
 
@@ -24,9 +24,9 @@ const Dashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Total Members</p>
+                <p className="text-sm text-white/60">Total Miembros</p>
                 <p className="text-2xl font-bold">254</p>
-                <p className="text-xs text-green-500">+5% from last month</p>
+                <p className="text-xs text-green-500">+5% desde el mes pasado</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
                 <Users className="text-haven-red" size={24} />
@@ -39,9 +39,9 @@ const Dashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Monthly Revenue</p>
+                <p className="text-sm text-white/60">Ingresos Mensuales</p>
                 <p className="text-2xl font-bold">Bs 37,850</p>
-                <p className="text-xs text-green-500">+12% from last month</p>
+                <p className="text-xs text-green-500">+12% desde el mes pasado</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
                 <DollarSign className="text-haven-red" size={24} />
@@ -54,9 +54,9 @@ const Dashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Active Products</p>
+                <p className="text-sm text-white/60">Productos Activos</p>
                 <p className="text-2xl font-bold">48</p>
-                <p className="text-xs text-yellow-500">3 low in stock</p>
+                <p className="text-xs text-yellow-500">3 con poco stock</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
                 <ShoppingBag className="text-haven-red" size={24} />
@@ -69,9 +69,9 @@ const Dashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Retention Rate</p>
+                <p className="text-sm text-white/60">Tasa de Retención</p>
                 <p className="text-2xl font-bold">92%</p>
-                <p className="text-xs text-green-500">+2% from last month</p>
+                <p className="text-xs text-green-500">+2% desde el mes pasado</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
                 <TrendingUp className="text-haven-red" size={24} />
@@ -84,21 +84,21 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="haven-card lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle>Revenue Overview</CardTitle>
-            <CardDescription>Monthly subscription revenue breakdown</CardDescription>
+            <CardTitle>Resumen de Ingresos</CardTitle>
+            <CardDescription>Desglose de ingresos mensuales por suscripción</CardDescription>
           </CardHeader>
           <CardContent className="h-72 flex items-center justify-center">
             <div className="text-center text-white/60">
               <BarChart size={64} className="mx-auto mb-4 text-haven-red" />
-              <p>Revenue chart visualization will be displayed here</p>
+              <p>La visualización del gráfico de ingresos se mostrará aquí</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="haven-card">
           <CardHeader className="pb-2">
-            <CardTitle>Upcoming Classes</CardTitle>
-            <CardDescription>Today's special events</CardDescription>
+            <CardTitle>Próximas Clases</CardTitle>
+            <CardDescription>Eventos especiales de hoy</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -107,9 +107,9 @@ const Dashboard = () => {
                   <Calendar size={20} className="text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">Spinning Class</p>
+                  <p className="font-medium">Clase de Spinning</p>
                   <p className="text-sm text-white/60">10:00 AM - 11:00 AM</p>
-                  <p className="text-xs text-white/60 mt-1">12 participants</p>
+                  <p className="text-xs text-white/60 mt-1">12 participantes</p>
                 </div>
               </div>
               
@@ -118,9 +118,9 @@ const Dashboard = () => {
                   <Dumbbell size={20} className="text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">Group Training</p>
+                  <p className="font-medium">Entrenamiento en Grupo</p>
                   <p className="text-sm text-white/60">2:00 PM - 3:30 PM</p>
-                  <p className="text-xs text-white/60 mt-1">8 participants</p>
+                  <p className="text-xs text-white/60 mt-1">8 participantes</p>
                 </div>
               </div>
               
@@ -129,9 +129,9 @@ const Dashboard = () => {
                   <Calendar size={20} className="text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">Dance Class</p>
+                  <p className="font-medium">Clase de Baile</p>
                   <p className="text-sm text-white/60">6:00 PM - 7:00 PM</p>
-                  <p className="text-xs text-white/60 mt-1">15 participants</p>
+                  <p className="text-xs text-white/60 mt-1">15 participantes</p>
                 </div>
               </div>
             </div>

@@ -35,64 +35,64 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-// Mock data for training exercises
+// Datos de ejemplo para ejercicios de entrenamiento
 const exercisesData = [
   {
     id: "1",
-    name: "Bench Press",
-    category: "Chest",
-    machine: "Bench Press Machine",
-    description: "Lie on the bench with feet on the floor. Grip the bar with hands slightly wider than shoulder-width. Lower the bar to chest level, then push back up.",
+    name: "Press de Banca",
+    category: "Pecho",
+    machine: "Máquina de Press de Banca",
+    description: "Acuéstese en el banco con los pies en el suelo. Agarre la barra con las manos un poco más anchas que los hombros. Baje la barra al nivel del pecho, luego empuje hacia arriba.",
     image: "placeholder.svg"
   },
   {
     id: "2",
-    name: "Leg Press",
-    category: "Legs",
-    machine: "Leg Press Machine",
-    description: "Sit in the machine with your back against the pad. Place feet hip-width apart on the platform. Push the platform away by extending your legs.",
+    name: "Prensa de Piernas",
+    category: "Piernas",
+    machine: "Máquina de Prensa de Piernas",
+    description: "Siéntese en la máquina con la espalda contra el respaldo. Coloque los pies separados a la altura de las caderas en la plataforma. Empuje la plataforma extendiendo las piernas.",
     image: "placeholder.svg"
   },
   {
     id: "3",
-    name: "Lat Pulldown",
-    category: "Back",
-    machine: "Cable Machine",
-    description: "Sit at the machine with thighs secured. Grab the bar with a wide grip. Pull the bar down to chest level while keeping your back straight.",
+    name: "Jalón al Pecho",
+    category: "Espalda",
+    machine: "Máquina de Cables",
+    description: "Siéntese en la máquina con los muslos asegurados. Agarre la barra con un agarre ancho. Tire de la barra hacia abajo hasta el nivel del pecho mientras mantiene la espalda recta.",
     image: "placeholder.svg"
   },
   {
     id: "4",
-    name: "Bicep Curl",
-    category: "Arms",
-    machine: "Dumbbell",
-    description: "Stand with a dumbbell in each hand, arms at your sides. Keep elbows close to torso and curl the weights up to shoulder level.",
+    name: "Curl de Bíceps",
+    category: "Brazos",
+    machine: "Mancuerna",
+    description: "De pie con una mancuerna en cada mano, brazos a los lados. Mantenga los codos cerca del torso y levante las pesas hasta el nivel de los hombros.",
     image: "placeholder.svg"
   },
   {
     id: "5",
-    name: "Treadmill Run",
+    name: "Carrera en Cinta",
     category: "Cardio",
-    machine: "Treadmill",
-    description: "Set the desired speed and incline. Maintain proper posture with shoulders back and core engaged while running.",
+    machine: "Cinta de Correr",
+    description: "Configure la velocidad y la inclinación deseadas. Mantenga una postura adecuada con los hombros hacia atrás y el núcleo activado mientras corre.",
     image: "placeholder.svg"
   },
   {
     id: "6",
-    name: "Shoulder Press",
-    category: "Shoulders",
-    machine: "Shoulder Press Machine",
-    description: "Sit with back against the pad. Grip handles at shoulder height. Push upward until arms are extended, then lower back down.",
+    name: "Press de Hombros",
+    category: "Hombros",
+    machine: "Máquina de Press de Hombros",
+    description: "Siéntese con la espalda contra el respaldo. Agarre las asas a la altura de los hombros. Empuje hacia arriba hasta que los brazos estén extendidos, luego baje de nuevo.",
     image: "placeholder.svg"
   },
 ];
 
 const categoryColors: Record<string, string> = {
-  "Chest": "bg-blue-500/20 text-blue-400",
-  "Back": "bg-purple-500/20 text-purple-400",
-  "Legs": "bg-green-500/20 text-green-400",
-  "Arms": "bg-orange-500/20 text-orange-400",
-  "Shoulders": "bg-yellow-500/20 text-yellow-400",
+  "Pecho": "bg-blue-500/20 text-blue-400",
+  "Espalda": "bg-purple-500/20 text-purple-400",
+  "Piernas": "bg-green-500/20 text-green-400",
+  "Brazos": "bg-orange-500/20 text-orange-400",
+  "Hombros": "bg-yellow-500/20 text-yellow-400",
   "Cardio": "bg-red-500/20 text-red-400",
   "Core": "bg-teal-500/20 text-teal-400",
 };
@@ -109,47 +109,47 @@ const Training = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Training Programs</h2>
-          <p className="text-white/60">Browse and manage training exercises</p>
+          <h2 className="text-3xl font-bold text-white">Programas de Entrenamiento</h2>
+          <p className="text-white/60">Explorar y gestionar ejercicios de entrenamiento</p>
         </div>
         <Dialog open={openNewExercise} onOpenChange={setOpenNewExercise}>
           <DialogTrigger asChild>
             <Button className="bg-haven-red hover:bg-haven-red/90">
-              <Plus className="mr-2 h-4 w-4" /> Add New Exercise
+              <Plus className="mr-2 h-4 w-4" /> Añadir Nuevo Ejercicio
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-haven-gray text-white border-white/10">
             <DialogHeader>
-              <DialogTitle>Add New Exercise</DialogTitle>
+              <DialogTitle>Añadir Nuevo Ejercicio</DialogTitle>
               <DialogDescription className="text-white/60">
-                Enter exercise details and training instructions
+                Ingrese detalles del ejercicio e instrucciones de entrenamiento
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                  Name
+                  Nombre
                 </Label>
                 <Input
                   id="name"
-                  placeholder="Exercise name"
+                  placeholder="Nombre del ejercicio"
                   className="col-span-3 bg-haven-dark border-white/10"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="text-right">
-                  Category
+                  Categoría
                 </Label>
                 <Select>
                   <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Seleccionar categoría" />
                   </SelectTrigger>
                   <SelectContent className="bg-haven-gray border-white/10">
-                    <SelectItem value="chest">Chest</SelectItem>
-                    <SelectItem value="back">Back</SelectItem>
-                    <SelectItem value="legs">Legs</SelectItem>
-                    <SelectItem value="arms">Arms</SelectItem>
-                    <SelectItem value="shoulders">Shoulders</SelectItem>
+                    <SelectItem value="chest">Pecho</SelectItem>
+                    <SelectItem value="back">Espalda</SelectItem>
+                    <SelectItem value="legs">Piernas</SelectItem>
+                    <SelectItem value="arms">Brazos</SelectItem>
+                    <SelectItem value="shoulders">Hombros</SelectItem>
                     <SelectItem value="cardio">Cardio</SelectItem>
                     <SelectItem value="core">Core</SelectItem>
                   </SelectContent>
@@ -157,28 +157,28 @@ const Training = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="machine" className="text-right">
-                  Machine/Equipment
+                  Máquina/Equipo
                 </Label>
                 <Input
                   id="machine"
-                  placeholder="Required equipment"
+                  placeholder="Equipo requerido"
                   className="col-span-3 bg-haven-dark border-white/10"
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
                 <Label htmlFor="description" className="text-right pt-2">
-                  Description
+                  Descripción
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Exercise instructions"
+                  placeholder="Instrucciones del ejercicio"
                   className="col-span-3 bg-haven-dark border-white/10"
                   rows={4}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="image" className="text-right">
-                  Image
+                  Imagen
                 </Label>
                 <Input
                   id="image"
@@ -189,10 +189,10 @@ const Training = () => {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenNewExercise(false)} className="border-white/10 hover:bg-haven-dark">
-                Cancel
+                Cancelar
               </Button>
               <Button className="bg-haven-red hover:bg-haven-red/90">
-                Add Exercise
+                Añadir Ejercicio
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -202,29 +202,29 @@ const Training = () => {
       <Tabs defaultValue="grid" className="w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <TabsList className="bg-haven-dark grid grid-cols-2 w-full max-w-[200px]">
-            <TabsTrigger value="grid" className="data-[state=active]:bg-haven-red">Grid</TabsTrigger>
-            <TabsTrigger value="list" className="data-[state=active]:bg-haven-red">List</TabsTrigger>
+            <TabsTrigger value="grid" className="data-[state=active]:bg-haven-red">Cuadrícula</TabsTrigger>
+            <TabsTrigger value="list" className="data-[state=active]:bg-haven-red">Lista</TabsTrigger>
           </TabsList>
           
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-3 h-4 w-4 text-white/40" />
               <Input
-                placeholder="Search exercises..."
+                placeholder="Buscar ejercicios..."
                 className="bg-haven-dark border-white/10 pl-10"
               />
             </div>
             <Select value={activeCategory} onValueChange={setActiveCategory}>
               <SelectTrigger className="w-full md:w-[180px] bg-haven-dark border-white/10">
-                <SelectValue placeholder="All categories" />
+                <SelectValue placeholder="Todas las categorías" />
               </SelectTrigger>
               <SelectContent className="bg-haven-gray border-white/10">
-                <SelectItem value="all">All categories</SelectItem>
-                <SelectItem value="chest">Chest</SelectItem>
-                <SelectItem value="back">Back</SelectItem>
-                <SelectItem value="legs">Legs</SelectItem>
-                <SelectItem value="arms">Arms</SelectItem>
-                <SelectItem value="shoulders">Shoulders</SelectItem>
+                <SelectItem value="all">Todas las categorías</SelectItem>
+                <SelectItem value="pecho">Pecho</SelectItem>
+                <SelectItem value="espalda">Espalda</SelectItem>
+                <SelectItem value="piernas">Piernas</SelectItem>
+                <SelectItem value="brazos">Brazos</SelectItem>
+                <SelectItem value="hombros">Hombros</SelectItem>
                 <SelectItem value="cardio">Cardio</SelectItem>
                 <SelectItem value="core">Core</SelectItem>
               </SelectContent>
@@ -251,10 +251,10 @@ const Training = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-haven-gray border-white/10">
                         <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                          <Edit className="h-4 w-4" /> Edit Exercise
+                          <Edit className="h-4 w-4" /> Editar Ejercicio
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
-                          <Trash2 className="h-4 w-4" /> Delete
+                          <Trash2 className="h-4 w-4" /> Eliminar
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -282,11 +282,11 @@ const Training = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4">Exercise</th>
-                      <th className="text-left py-3 px-4">Category</th>
-                      <th className="text-left py-3 px-4">Machine</th>
-                      <th className="text-left py-3 px-4">Description</th>
-                      <th className="text-right py-3 px-4">Actions</th>
+                      <th className="text-left py-3 px-4">Ejercicio</th>
+                      <th className="text-left py-3 px-4">Categoría</th>
+                      <th className="text-left py-3 px-4">Máquina</th>
+                      <th className="text-left py-3 px-4">Descripción</th>
+                      <th className="text-right py-3 px-4">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -311,10 +311,10 @@ const Training = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-haven-gray border-white/10">
                               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                                <Edit className="h-4 w-4" /> Edit Exercise
+                                <Edit className="h-4 w-4" /> Editar Ejercicio
                               </DropdownMenuItem>
                               <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
-                                <Trash2 className="h-4 w-4" /> Delete
+                                <Trash2 className="h-4 w-4" /> Eliminar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -335,8 +335,8 @@ const Training = () => {
             <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3 group-hover:bg-blue-500/30 transition-colors">
               <Dumbbell className="text-blue-400" size={24} />
             </div>
-            <h3 className="font-bold">Chest Workouts</h3>
-            <p className="text-sm text-white/60 mt-1">8 exercises</p>
+            <h3 className="font-bold">Entrenamiento de Pecho</h3>
+            <p className="text-sm text-white/60 mt-1">8 ejercicios</p>
           </CardContent>
         </Card>
         
@@ -345,8 +345,8 @@ const Training = () => {
             <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3 group-hover:bg-purple-500/30 transition-colors">
               <Dumbbell className="text-purple-400" size={24} />
             </div>
-            <h3 className="font-bold">Back Workouts</h3>
-            <p className="text-sm text-white/60 mt-1">6 exercises</p>
+            <h3 className="font-bold">Entrenamiento de Espalda</h3>
+            <p className="text-sm text-white/60 mt-1">6 ejercicios</p>
           </CardContent>
         </Card>
         
@@ -355,8 +355,8 @@ const Training = () => {
             <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3 group-hover:bg-green-500/30 transition-colors">
               <Dumbbell className="text-green-400" size={24} />
             </div>
-            <h3 className="font-bold">Leg Workouts</h3>
-            <p className="text-sm text-white/60 mt-1">7 exercises</p>
+            <h3 className="font-bold">Entrenamiento de Piernas</h3>
+            <p className="text-sm text-white/60 mt-1">7 ejercicios</p>
           </CardContent>
         </Card>
         
@@ -365,8 +365,8 @@ const Training = () => {
             <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-3 group-hover:bg-red-500/30 transition-colors">
               <Dumbbell className="text-red-400" size={24} />
             </div>
-            <h3 className="font-bold">Cardio Workouts</h3>
-            <p className="text-sm text-white/60 mt-1">5 exercises</p>
+            <h3 className="font-bold">Entrenamiento Cardio</h3>
+            <p className="text-sm text-white/60 mt-1">5 ejercicios</p>
           </CardContent>
         </Card>
       </div>

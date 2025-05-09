@@ -19,7 +19,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
       <div className="relative flex-1 max-w-lg hidden md:block">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Buscar..."
           className="w-full bg-haven-dark border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-haven-red"
         />
         <Search size={18} className="absolute left-3 top-2.5 text-white/50" />
@@ -34,7 +34,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-haven-red to-rose-600" />
           <div className="hidden md:block">
-            <p className="text-sm font-medium">Admin</p>
+            <p className="text-sm font-medium">Administrador</p>
             <p className="text-xs text-white/60">Haven Gym</p>
           </div>
         </div>
