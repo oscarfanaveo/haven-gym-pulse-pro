@@ -1,8 +1,8 @@
 
 import { NavLink } from "react-router-dom";
 import { 
-  Users, ShoppingBag, BarChart, Dumbbell, Home, 
-  ChevronLeft, ChevronRight, LogOut 
+  UsersRound, ShoppingBag, BarChart, Dumbbell, Home, 
+  ChevronLeft, ChevronRight, LogOut, ShoppingCart 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -54,8 +54,19 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 `nav-link ${isActive ? "active" : ""}`
               }
             >
-              <Users size={20} />
+              <UsersRound size={20} />
               {open && <span>Suscripciones</span>}
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/sales"
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+            >
+              <ShoppingCart size={20} />
+              {open && <span>Ventas</span>}
             </NavLink>
           </li>
           <li>

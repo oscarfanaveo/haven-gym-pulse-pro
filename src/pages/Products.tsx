@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Plus, Search, Filter, MoreHorizontal, Package, Trash2, Edit, AlertTriangle, ArrowUpDown } from "lucide-react";
+import { Plus, Search, Filter, MoreHorizontal, Package, Trash2, Edit, AlertTriangle, ArrowUpDown, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,92 +137,101 @@ const Products = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Products</h2>
-          <p className="text-white/60">Manage inventory and product sales</p>
+          <h2 className="text-3xl font-bold text-white">Productos</h2>
+          <p className="text-white/60">Gestión de inventario y ventas de productos</p>
         </div>
-        <Dialog open={openNewProduct} onOpenChange={setOpenNewProduct}>
-          <DialogTrigger asChild>
-            <Button className="bg-haven-red hover:bg-haven-red/90">
-              <Plus className="mr-2 h-4 w-4" /> Add New Product
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-haven-gray text-white border-white/10">
-            <DialogHeader>
-              <DialogTitle>Add New Product</DialogTitle>
-              <DialogDescription className="text-white/60">
-                Fill out the form below to add a new product to inventory
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Product name"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="category" className="text-right">
-                  Category
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-haven-gray border-white/10">
-                    <SelectItem value="supplement">Supplement</SelectItem>
-                    <SelectItem value="accessory">Accessory</SelectItem>
-                    <SelectItem value="clothing">Clothing</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="price" className="text-right">
-                  Price (Bs)
-                </Label>
-                <Input
-                  id="price"
-                  type="number"
-                  placeholder="0.00"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="stock" className="text-right">
-                  Stock Quantity
-                </Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  placeholder="0"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Input
-                  id="description"
-                  placeholder="Product description"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpenNewProduct(false)} className="border-white/10 hover:bg-haven-dark">
-                Cancel
-              </Button>
+        <div className="flex gap-2">
+          <Dialog open={openNewProduct} onOpenChange={setOpenNewProduct}>
+            <DialogTrigger asChild>
               <Button className="bg-haven-red hover:bg-haven-red/90">
-                Add Product
+                <Plus className="mr-2 h-4 w-4" /> Añadir Producto
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="bg-haven-gray text-white border-white/10">
+              <DialogHeader>
+                <DialogTitle>Add New Product</DialogTitle>
+                <DialogDescription className="text-white/60">
+                  Fill out the form below to add a new product to inventory
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    placeholder="Product name"
+                    className="col-span-3 bg-haven-dark border-white/10"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="category" className="text-right">
+                    Category
+                  </Label>
+                  <Select>
+                    <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-haven-gray border-white/10">
+                      <SelectItem value="supplement">Supplement</SelectItem>
+                      <SelectItem value="accessory">Accessory</SelectItem>
+                      <SelectItem value="clothing">Clothing</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="price" className="text-right">
+                    Price (Bs)
+                  </Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="0.00"
+                    className="col-span-3 bg-haven-dark border-white/10"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="stock" className="text-right">
+                    Stock Quantity
+                  </Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    placeholder="0"
+                    className="col-span-3 bg-haven-dark border-white/10"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    placeholder="Product description"
+                    className="col-span-3 bg-haven-dark border-white/10"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpenNewProduct(false)} className="border-white/10 hover:bg-haven-dark">
+                  Cancel
+                </Button>
+                <Button className="bg-haven-red hover:bg-haven-red/90">
+                  Add Product
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button 
+            variant="outline" 
+            className="border-white/10 bg-haven-dark hover:bg-haven-dark/80"
+            onClick={() => window.location.href = '/sales'}
+          >
+            <ShoppingCart className="mr-2 h-4 w-4" /> Ir a Ventas
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
