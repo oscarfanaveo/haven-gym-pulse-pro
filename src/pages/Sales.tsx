@@ -34,6 +34,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { CartProvider, useCart } from "@/contexts/CartContext";
+import ShoppingCart from "@/components/ShoppingCart";
 
 // Datos de ejemplo para ventas
 const salesData = [
@@ -79,6 +82,20 @@ const salesData = [
   }
 ];
 
+// Datos de ejemplo para productos
+const productsData = [
+  { id: "1", name: "Whey Protein Powder", price: 350, category: "Suplementos" },
+  { id: "2", name: "Pre-Workout Supplement", price: 220, category: "Suplementos" },
+  { id: "3", name: "Protein Bar", price: 35, category: "Snacks" },
+  { id: "4", name: "Shaker Bottle", price: 45, category: "Accesorios" },
+  { id: "5", name: "Gym Gloves", price: 85, category: "Accesorios" },
+  { id: "6", name: "Women's Leggings", price: 160, category: "Ropa" },
+  { id: "7", name: "Men's Shorts", price: 120, category: "Ropa" },
+  { id: "8", name: "Creatina Monohidrato", price: 280, category: "Suplementos" },
+  { id: "9", name: "BCAA Complex", price: 190, category: "Suplementos" },
+  { id: "10", name: "Toalla de Entrenamiento", price: 75, category: "Accesorios" }
+];
+
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
     case "Completada":
@@ -97,8 +114,21 @@ const totalSales = salesData.reduce((sum, sale) => sum + sale.amount, 0);
 const totalTransactions = salesData.length;
 const avgSale = totalSales / totalTransactions;
 
-const Sales = () => {
+const SalesContent = () => {
   const [openNewSale, setOpenNewSale] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { addItem } = useCart();
+
+  // Filtrar productos por categoría y término de búsqueda
+  const filteredProducts = productsData.filter(product => {
+    const matchesCategory = selectedCategory ? product.category === selectedCategory : true;
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  // Obtener categorías únicas
+  const categories = Array.from(new Set(productsData.map(product => product.category)));
 
   return (
     <div className="space-y-6">
@@ -107,82 +137,93 @@ const Sales = () => {
           <h2 className="text-3xl font-bold text-white">Ventas</h2>
           <p className="text-white/60">Gestión de ventas y transacciones</p>
         </div>
-        <Dialog open={openNewSale} onOpenChange={setOpenNewSale}>
-          <DialogTrigger asChild>
-            <Button className="bg-haven-red hover:bg-haven-red/90">
-              <ShoppingCart className="mr-2 h-4 w-4" /> Nueva Venta
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-haven-gray text-white border-white/10">
-            <DialogHeader>
-              <DialogTitle>Nueva Venta</DialogTitle>
-              <DialogDescription className="text-white/60">
-                Registre una nueva venta de productos
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="customer" className="text-right">
-                  Cliente
-                </label>
-                <Input
-                  id="customer"
-                  placeholder="Nombre del cliente"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="product" className="text-right">
-                  Producto
-                </label>
-                <Select>
-                  <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
-                    <SelectValue placeholder="Seleccionar producto" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-haven-gray border-white/10">
-                    <SelectItem value="protein">Whey Protein Powder</SelectItem>
-                    <SelectItem value="gloves">Gym Gloves</SelectItem>
-                    <SelectItem value="bar">Protein Bar</SelectItem>
-                    <SelectItem value="leggings">Women's Leggings</SelectItem>
-                    <SelectItem value="shaker">Shaker Bottle</SelectItem>
-                    <SelectItem value="preworkout">Pre-Workout Supplement</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="quantity" className="text-right">
-                  Cantidad
-                </label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  defaultValue="1"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="price" className="text-right">
-                  Precio (Bs)
-                </label>
-                <Input
-                  id="price"
-                  type="number"
-                  placeholder="0.00"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpenNewSale(false)} className="border-white/10 hover:bg-haven-dark">
-                Cancelar
-              </Button>
+        <div className="flex gap-2">
+          <Dialog open={openNewSale} onOpenChange={setOpenNewSale}>
+            <DialogTrigger asChild>
               <Button className="bg-haven-red hover:bg-haven-red/90">
-                Completar Venta
+                <ShoppingCart className="mr-2 h-4 w-4" /> Nueva Venta
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="bg-haven-gray text-white border-white/10 sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Nueva Venta</DialogTitle>
+                <DialogDescription className="text-white/60">
+                  Registre una nueva venta seleccionando productos
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="customer" className="text-right">
+                    Cliente
+                  </label>
+                  <Input
+                    id="customer"
+                    placeholder="Nombre del cliente"
+                    className="col-span-3 bg-haven-dark border-white/10"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Buscar productos..."
+                    className="flex-1 bg-haven-dark border-white/10"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Select
+                    value={selectedCategory || ""}
+                    onValueChange={(value) => setSelectedCategory(value || null)}
+                  >
+                    <SelectTrigger className="w-[180px] bg-haven-dark border-white/10">
+                      <SelectValue placeholder="Categoría" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-haven-gray border-white/10">
+                      <SelectItem value="">Todas</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Separator className="bg-white/10 my-4" />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[40vh] overflow-y-auto pr-1">
+                  {filteredProducts.map((product) => (
+                    <div 
+                      key={product.id} 
+                      className="border border-white/10 rounded-md p-3 flex justify-between items-center hover:bg-haven-dark/50"
+                    >
+                      <div>
+                        <h4 className="font-medium">{product.name}</h4>
+                        <p className="text-sm text-white/60">{product.price} Bs</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="border-white/10 hover:bg-haven-dark"
+                        onClick={() => addItem(product)}
+                      >
+                        Agregar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpenNewSale(false)} className="border-white/10 hover:bg-haven-dark">
+                  Cerrar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <ShoppingCart />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -321,6 +362,14 @@ const Sales = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const Sales = () => {
+  return (
+    <CartProvider>
+      <SalesContent />
+    </CartProvider>
   );
 };
 
