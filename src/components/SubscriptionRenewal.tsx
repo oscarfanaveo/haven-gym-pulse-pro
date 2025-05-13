@@ -3,6 +3,17 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import Invoice from "@/components/Invoice";
 import { CalendarCheck } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface SubscriptionRenewalProps {
   memberName: string;
@@ -27,17 +38,43 @@ const SubscriptionRenewal: React.FC<SubscriptionRenewalProps> = ({
     }
   };
 
+  const handleRenewalConfirmed = () => {
+    setShowInvoice(true);
+  };
+
   return (
     <>
-      <Button 
-        onClick={() => setShowInvoice(true)} 
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-1 border-white/10 hover:bg-haven-dark"
-      >
-        <CalendarCheck size={14} />
-        <span>Renovar</span>
-      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <div className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 text-sm">
+            <CalendarCheck size={14} />
+            <span>Renovar</span>
+          </div>
+        </AlertDialogTrigger>
+        <AlertDialogContent className="bg-haven-gray text-white border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Renovación</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              ¿Está seguro de que desea renovar la suscripción para {memberName}?
+              <div className="mt-2 p-2 bg-haven-dark/50 rounded">
+                <p className="font-medium">{getPlanName(planType)}</p>
+                <p className="text-white/80">Precio: {price} Bs</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/10 hover:bg-haven-dark text-white">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-haven-red hover:bg-haven-red/90"
+              onClick={handleRenewalConfirmed}
+            >
+              Confirmar Renovación
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showInvoice && (
         <Invoice 
