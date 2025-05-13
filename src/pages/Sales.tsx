@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, MoreHorizontal, Package, Trash2, Receipt, ArrowUpDown, ShoppingCart as CartIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -236,7 +235,7 @@ const SalesContent = () => {
                 <p className="text-xs text-white/60">En los últimos 7 días</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
-                <ShoppingCart className="text-haven-red" size={24} />
+                <CartIcon size={24} className="text-haven-red" />
               </div>
             </div>
           </CardContent>
@@ -251,7 +250,7 @@ const SalesContent = () => {
                 <p className="text-xs text-white/60">Total de ventas realizadas</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <Receipt className="text-blue-500" size={24} />
+                <Receipt size={24} className="text-blue-500" />
               </div>
             </div>
           </CardContent>
@@ -266,7 +265,7 @@ const SalesContent = () => {
                 <p className="text-xs text-white/60">Por transacción</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <ArrowUpDown className="text-purple-500" size={24} />
+                <ArrowUpDown size={24} className="text-purple-500" />
               </div>
             </div>
           </CardContent>
