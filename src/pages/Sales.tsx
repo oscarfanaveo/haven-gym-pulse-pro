@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ShoppingCart, Search, Filter, MoreHorizontal, Package, Trash2, Receipt, ArrowUpDown } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Package, Trash2, Receipt, ArrowUpDown, ShoppingCart as CartIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,7 +141,7 @@ const SalesContent = () => {
           <Dialog open={openNewSale} onOpenChange={setOpenNewSale}>
             <DialogTrigger asChild>
               <Button className="bg-haven-red hover:bg-haven-red/90">
-                <ShoppingCart className="mr-2 h-4 w-4" /> Nueva Venta
+                <CartIcon className="mr-2 h-4 w-4" /> Nueva Venta
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-haven-gray text-white border-white/10 sm:max-w-lg">
@@ -173,14 +173,14 @@ const SalesContent = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <Select
-                    value={selectedCategory || ""}
-                    onValueChange={(value) => setSelectedCategory(value || null)}
+                    value={selectedCategory || "todas"}
+                    onValueChange={(value) => setSelectedCategory(value === "todas" ? null : value)}
                   >
                     <SelectTrigger className="w-[180px] bg-haven-dark border-white/10">
                       <SelectValue placeholder="Categoría" />
                     </SelectTrigger>
                     <SelectContent className="bg-haven-gray border-white/10">
-                      <SelectItem value="">Todas</SelectItem>
+                      <SelectItem value="todas">Todas</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
