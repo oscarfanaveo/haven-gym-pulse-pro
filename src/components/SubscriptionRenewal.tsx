@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import Invoice from "@/components/Invoice";
 import { CalendarCheck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,8 @@ const SubscriptionRenewal: React.FC<SubscriptionRenewalProps> = ({
   price
 }) => {
   const [showInvoice, setShowInvoice] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const getPlanName = (plan: string): string => {
     switch (plan) {
@@ -40,11 +43,16 @@ const SubscriptionRenewal: React.FC<SubscriptionRenewalProps> = ({
 
   const handleRenewalConfirmed = () => {
     setShowInvoice(true);
+    setDialogOpen(false);
+    toast({
+      title: "Renovación exitosa",
+      description: `La suscripción de ${memberName} ha sido renovada.`,
+    });
   };
 
   return (
     <>
-      <AlertDialog>
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogTrigger asChild>
           <div className="flex items-center gap-2 cursor-pointer w-full px-2 py-1.5 text-sm">
             <CalendarCheck size={14} />
