@@ -43,6 +43,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import Invoice from "@/components/Invoice";
+import SubscriptionRenewal from "@/components/SubscriptionRenewal";
 
 // Datos de ejemplo para suscripciones
 const subscriptionsData = [
@@ -407,8 +408,12 @@ const Subscriptions = () => {
                               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
                                 <Edit className="h-4 w-4" /> Editar Miembro
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                                <Calendar className="h-4 w-4" /> Renovar Suscripción
+                              <DropdownMenuItem>
+                                <SubscriptionRenewal 
+                                  memberName={subscription.name} 
+                                  planType={subscription.plan} 
+                                  price={subscription.price} 
+                                />
                               </DropdownMenuItem>
                               <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
                                 <Trash2 className="h-4 w-4" /> Eliminar
