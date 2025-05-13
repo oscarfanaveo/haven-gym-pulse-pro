@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   User, Plus, Search, Filter, MoreHorizontal, Calendar,
@@ -43,6 +42,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import Invoice from "@/components/Invoice";
 
 // Datos de ejemplo para suscripciones
 const subscriptionsData = [
@@ -150,6 +150,41 @@ const plans = [
 
 const Subscriptions = () => {
   const [openNewSubscription, setOpenNewSubscription] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [subscriptionPrice, setSubscriptionPrice] = useState(0);
+
+  const handleAddMember = () => {
+    // Find the plan price based on selected plan
+    let price = 0;
+    if (selectedPlan === "basic") price = 135;
+    else if (selectedPlan === "regular") price = 160;
+    else if (selectedPlan === "premium") price = 200;
+    else if (selectedPlan === "temporary") price = 50;
+    
+    setSubscriptionPrice(price);
+    setShowInvoice(true);
+    // Don't close modal yet - we'll close it after invoice is viewed
+  };
+
+  const getPlanName = (planId: string): string => {
+    switch (planId) {
+      case "basic": return "Suscripción Básica";
+      case "regular": return "Suscripción Regular";
+      case "premium": return "Suscripción Premium";
+      case "temporary": return "Suscripción Temporal";
+      default: return "Suscripción";
+    }
+  };
+
+  const handleCloseInvoice = () => {
+    setShowInvoice(false);
+    setOpenNewSubscription(false);
+    // Reset form
+    setCustomerName("");
+    setSelectedPlan("");
+  };
 
   return (
     <div className="space-y-6">
@@ -180,6 +215,8 @@ const Subscriptions = () => {
                   id="name"
                   placeholder="Nombre completo"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -207,7 +244,7 @@ const Subscriptions = () => {
                 <label htmlFor="plan" className="text-right">
                   Plan
                 </label>
-                <Select>
+                <Select value={selectedPlan} onValueChange={setSelectedPlan}>
                   <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
                     <SelectValue placeholder="Seleccionar plan" />
                   </SelectTrigger>
@@ -215,7 +252,7 @@ const Subscriptions = () => {
                     <SelectItem value="basic">Básico (135 Bs)</SelectItem>
                     <SelectItem value="regular">Regular (160 Bs)</SelectItem>
                     <SelectItem value="premium">Premium (200 Bs)</SelectItem>
-                    <SelectItem value="temporary">Temporal</SelectItem>
+                    <SelectItem value="temporary">Temporal (50 Bs)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -234,7 +271,11 @@ const Subscriptions = () => {
               <Button variant="outline" onClick={() => setOpenNewSubscription(false)} className="border-white/10 hover:bg-haven-dark">
                 Cancelar
               </Button>
-              <Button className="bg-haven-red hover:bg-haven-red/90">
+              <Button 
+                className="bg-haven-red hover:bg-haven-red/90"
+                onClick={handleAddMember}
+                disabled={!selectedPlan || !customerName}
+              >
                 Añadir Miembro
               </Button>
             </DialogFooter>
@@ -409,6 +450,16 @@ const Subscriptions = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {showInvoice && (
+        <Invoice 
+          subscriptionType={getPlanName(selectedPlan)}
+          customerName={customerName}
+          total={subscriptionPrice}
+          isSubscription={true}
+          onClose={handleCloseInvoice}
+        />
+      )}
     </div>
   );
 };
