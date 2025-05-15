@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/tabs";
 import Invoice from "@/components/Invoice";
 import SubscriptionRenewal from "@/components/SubscriptionRenewal";
+import PlanSelector from "@/components/PlanSelector";
 
 // Datos de ejemplo para suscripciones
 const subscriptionsData = [
@@ -156,28 +157,17 @@ const Subscriptions = () => {
   const [customerName, setCustomerName] = useState("");
   const [showInvoice, setShowInvoice] = useState(false);
   const [subscriptionPrice, setSubscriptionPrice] = useState(0);
+  const [planName, setPlanName] = useState("");
 
   const handleAddMember = () => {
-    // Find the plan price based on selected plan
-    let price = 0;
-    if (selectedPlan === "basic") price = 135;
-    else if (selectedPlan === "regular") price = 160;
-    else if (selectedPlan === "premium") price = 200;
-    else if (selectedPlan === "temporary") price = 50;
-    
-    setSubscriptionPrice(price);
     setShowInvoice(true);
     // Don't close modal yet - we'll close it after invoice is viewed
   };
 
-  const getPlanName = (planId: string): string => {
-    switch (planId) {
-      case "basic": return "Suscripción Básica";
-      case "regular": return "Suscripción Regular";
-      case "premium": return "Suscripción Premium";
-      case "temporary": return "Suscripción Temporal";
-      default: return "Suscripción";
-    }
+  const handlePlanChange = (name: string, price: number) => {
+    setPlanName(name);
+    setSubscriptionPrice(price);
+    setSelectedPlan("custom"); // Set a value to enable the button
   };
 
   const handleCloseInvoice = () => {
@@ -186,6 +176,8 @@ const Subscriptions = () => {
     // Reset form
     setCustomerName("");
     setSelectedPlan("");
+    setPlanName("");
+    setSubscriptionPrice(0);
   };
 
   return (
@@ -246,17 +238,14 @@ const Subscriptions = () => {
                 <label htmlFor="plan" className="text-right">
                   Plan
                 </label>
-                <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                  <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
-                    <SelectValue placeholder="Seleccionar plan" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-haven-gray border-white/10">
-                    <SelectItem value="basic">Básico (135 Bs)</SelectItem>
-                    <SelectItem value="regular">Regular (160 Bs)</SelectItem>
-                    <SelectItem value="premium">Premium (200 Bs)</SelectItem>
-                    <SelectItem value="temporary">Temporal (50 Bs)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="col-span-3">
+                  <PlanSelector onPlanChange={handlePlanChange} />
+                  {planName && (
+                    <p className="text-sm text-white/60 mt-1">
+                      Plan seleccionado: {planName} - {subscriptionPrice} Bs
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="startDate" className="text-right">
@@ -459,7 +448,7 @@ const Subscriptions = () => {
 
       {showInvoice && (
         <Invoice 
-          subscriptionType={getPlanName(selectedPlan)}
+          subscriptionType={planName}
           customerName={customerName}
           total={subscriptionPrice}
           isSubscription={true}
