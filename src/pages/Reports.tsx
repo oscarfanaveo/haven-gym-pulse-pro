@@ -32,8 +32,8 @@ const Reports = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Reports & Analytics</h2>
-          <p className="text-white/60">Track gym performance and financial data</p>
+          <h2 className="text-3xl font-bold text-white">Reportes y Análisis</h2>
+          <p className="text-white/60">Seguimiento del rendimiento y datos financieros del gimnasio</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Popover>
@@ -43,7 +43,7 @@ const Reports = () => {
                 className="border-white/10 hover:bg-haven-dark"
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "MMMM yyyy") : "Pick a month"}
+                {date ? format(date, "MMMM yyyy") : "Seleccionar mes"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-haven-gray border-white/10">
@@ -58,11 +58,11 @@ const Reports = () => {
           </Popover>
           <Button variant="outline" className="border-white/10 hover:bg-haven-dark">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
+            Actualizar
           </Button>
           <Button className="bg-haven-red hover:bg-haven-red/90">
             <DownloadIcon className="mr-2 h-4 w-4" />
-            Export
+            Exportar
           </Button>
         </div>
       </div>
@@ -72,10 +72,10 @@ const Reports = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Monthly Revenue</p>
+                <p className="text-sm text-white/60">Ingresos Mensuales</p>
                 <p className="text-2xl font-bold">Bs 37,850</p>
                 <p className="text-xs text-green-500 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" /> +12% from last month
+                  <TrendingUp className="h-3 w-3 mr-1" /> +12% respecto al mes anterior
                 </p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
@@ -89,10 +89,10 @@ const Reports = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Expenses</p>
+                <p className="text-sm text-white/60">Gastos</p>
                 <p className="text-2xl font-bold">Bs 12,520</p>
                 <p className="text-xs text-red-500 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" /> +8% from last month
+                  <TrendingUp className="h-3 w-3 mr-1" /> +8% respecto al mes anterior
                 </p>
               </div>
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
@@ -106,10 +106,10 @@ const Reports = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">New Members</p>
+                <p className="text-sm text-white/60">Nuevos Miembros</p>
                 <p className="text-2xl font-bold">24</p>
                 <p className="text-xs text-green-500 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" /> +15% from last month
+                  <TrendingUp className="h-3 w-3 mr-1" /> +15% respecto al mes anterior
                 </p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -123,10 +123,10 @@ const Reports = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Cancellations</p>
+                <p className="text-sm text-white/60">Cancelaciones</p>
                 <p className="text-2xl font-bold">5</p>
                 <p className="text-xs text-red-500 flex items-center">
-                  <TrendingDown className="h-3 w-3 mr-1" /> -10% from last month
+                  <TrendingDown className="h-3 w-3 mr-1" /> -10% respecto al mes anterior
                 </p>
               </div>
               <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
@@ -139,9 +139,9 @@ const Reports = () => {
 
       <Tabs defaultValue="financial" className="w-full">
         <TabsList className="bg-haven-dark grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="financial" className="data-[state=active]:bg-haven-red">Financial</TabsTrigger>
-          <TabsTrigger value="membership" className="data-[state=active]:bg-haven-red">Membership</TabsTrigger>
-          <TabsTrigger value="retention" className="data-[state=active]:bg-haven-red">Retention</TabsTrigger>
+          <TabsTrigger value="financial" className="data-[state=active]:bg-haven-red">Financiero</TabsTrigger>
+          <TabsTrigger value="membership" className="data-[state=active]:bg-haven-red">Membresías</TabsTrigger>
+          <TabsTrigger value="retention" className="data-[state=active]:bg-haven-red">Retención</TabsTrigger>
         </TabsList>
         
         <TabsContent value="financial" className="mt-4">
@@ -150,18 +150,18 @@ const Reports = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Revenue Breakdown</CardTitle>
-                    <CardDescription>Monthly revenue by subscription type</CardDescription>
+                    <CardTitle>Desglose de Ingresos</CardTitle>
+                    <CardDescription>Ingresos mensuales por tipo de suscripción</CardDescription>
                   </div>
                   <Select defaultValue="6months">
                     <SelectTrigger className="w-[180px] bg-haven-dark border-white/10">
-                      <SelectValue placeholder="Time period" />
+                      <SelectValue placeholder="Período de tiempo" />
                     </SelectTrigger>
                     <SelectContent className="bg-haven-gray border-white/10">
-                      <SelectItem value="30days">Last 30 days</SelectItem>
-                      <SelectItem value="3months">3 months</SelectItem>
-                      <SelectItem value="6months">6 months</SelectItem>
-                      <SelectItem value="year">1 year</SelectItem>
+                      <SelectItem value="30days">Últimos 30 días</SelectItem>
+                      <SelectItem value="3months">3 meses</SelectItem>
+                      <SelectItem value="6months">6 meses</SelectItem>
+                      <SelectItem value="year">1 año</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -169,20 +169,20 @@ const Reports = () => {
               <CardContent className="h-72 flex items-center justify-center">
                 <div className="text-center text-white/60">
                   <TrendingUp size={64} className="mx-auto mb-4 text-haven-red" />
-                  <p>Revenue chart visualization will be displayed here</p>
+                  <p>La visualización del gráfico de ingresos se mostrará aquí</p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="haven-card">
               <CardHeader className="pb-2">
-                <CardTitle>Subscription Distribution</CardTitle>
-                <CardDescription>Current active memberships</CardDescription>
+                <CardTitle>Distribución de Suscripciones</CardTitle>
+                <CardDescription>Membresías activas actualmente</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Basic Plan</span>
+                    <span className="text-sm">Plan Básico</span>
                     <span className="text-sm font-bold">36 (14%)</span>
                   </div>
                   <div className="w-full bg-haven-dark rounded-full h-2">
@@ -192,7 +192,7 @@ const Reports = () => {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Regular Plan</span>
+                    <span className="text-sm">Plan Regular</span>
                     <span className="text-sm font-bold">128 (50%)</span>
                   </div>
                   <div className="w-full bg-haven-dark rounded-full h-2">
@@ -202,7 +202,7 @@ const Reports = () => {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Premium Plan</span>
+                    <span className="text-sm">Plan Premium</span>
                     <span className="text-sm font-bold">75 (30%)</span>
                   </div>
                   <div className="w-full bg-haven-dark rounded-full h-2">
@@ -212,7 +212,7 @@ const Reports = () => {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Temporary Plan</span>
+                    <span className="text-sm">Plan Temporal</span>
                     <span className="text-sm font-bold">15 (6%)</span>
                   </div>
                   <div className="w-full bg-haven-dark rounded-full h-2">
@@ -226,63 +226,63 @@ const Reports = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
             <Card className="haven-card">
               <CardHeader className="pb-2">
-                <CardTitle>Monthly Profit & Loss</CardTitle>
-                <CardDescription>Financial performance tracking</CardDescription>
+                <CardTitle>Ganancias y Pérdidas Mensuales</CardTitle>
+                <CardDescription>Seguimiento del rendimiento financiero</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <span className="font-medium">Total Revenue</span>
+                    <span className="font-medium">Ingresos Totales</span>
                     <span className="font-bold">Bs 37,850</span>
                   </div>
                   
                   <div>
-                    <div className="text-sm text-white/60 mb-1">Revenue Breakdown</div>
+                    <div className="text-sm text-white/60 mb-1">Desglose de Ingresos</div>
                     <div className="space-y-2 pl-2 border-l border-white/10">
                       <div className="flex justify-between">
-                        <span className="text-sm">Membership Subscriptions</span>
+                        <span className="text-sm">Suscripciones de Membresía</span>
                         <span className="text-sm">Bs 32,450</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm">Product Sales</span>
+                        <span className="text-sm">Ventas de Productos</span>
                         <span className="text-sm">Bs 3,200</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm">Special Events</span>
+                        <span className="text-sm">Eventos Especiales</span>
                         <span className="text-sm">Bs 2,200</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <span className="font-medium">Total Expenses</span>
+                    <span className="font-medium">Gastos Totales</span>
                     <span className="font-bold">Bs 12,520</span>
                   </div>
                   
                   <div>
-                    <div className="text-sm text-white/60 mb-1">Expense Breakdown</div>
+                    <div className="text-sm text-white/60 mb-1">Desglose de Gastos</div>
                     <div className="space-y-2 pl-2 border-l border-white/10">
                       <div className="flex justify-between">
-                        <span className="text-sm">Rent & Utilities</span>
+                        <span className="text-sm">Alquiler y Servicios</span>
                         <span className="text-sm">Bs 7,500</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm">Staff Salaries</span>
+                        <span className="text-sm">Salarios del Personal</span>
                         <span className="text-sm">Bs 3,800</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm">Equipment Maintenance</span>
+                        <span className="text-sm">Mantenimiento de Equipos</span>
                         <span className="text-sm">Bs 620</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm">Other Expenses</span>
+                        <span className="text-sm">Otros Gastos</span>
                         <span className="text-sm">Bs 600</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                    <span className="font-medium">Net Profit</span>
+                    <span className="font-medium">Beneficio Neto</span>
                     <span className="font-bold text-green-500">Bs 25,330</span>
                   </div>
                 </div>
@@ -291,8 +291,8 @@ const Reports = () => {
 
             <Card className="haven-card">
               <CardHeader className="pb-2">
-                <CardTitle>Product Sales Performance</CardTitle>
-                <CardDescription>Top selling products this month</CardDescription>
+                <CardTitle>Rendimiento de Ventas de Productos</CardTitle>
+                <CardDescription>Productos más vendidos este mes</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-6">
@@ -302,12 +302,12 @@ const Reports = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium">Whey Protein Powder</h4>
+                        <h4 className="font-medium">Proteína en Polvo</h4>
                         <span className="font-bold">Bs 5,600</span>
                       </div>
                       <div className="flex items-center justify-between text-sm text-white/60">
-                        <span>16 units sold</span>
-                        <span>350 Bs / unit</span>
+                        <span>16 unidades vendidas</span>
+                        <span>350 Bs / unidad</span>
                       </div>
                     </div>
                   </div>
@@ -318,12 +318,12 @@ const Reports = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium">Pre-Workout Supplement</h4>
+                        <h4 className="font-medium">Suplemento Pre-Entrenamiento</h4>
                         <span className="font-bold">Bs 3,300</span>
                       </div>
                       <div className="flex items-center justify-between text-sm text-white/60">
-                        <span>15 units sold</span>
-                        <span>220 Bs / unit</span>
+                        <span>15 unidades vendidas</span>
+                        <span>220 Bs / unidad</span>
                       </div>
                     </div>
                   </div>
@@ -334,12 +334,12 @@ const Reports = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium">Protein Bars</h4>
+                        <h4 className="font-medium">Barras de Proteína</h4>
                         <span className="font-bold">Bs 1,650</span>
                       </div>
                       <div className="flex items-center justify-between text-sm text-white/60">
-                        <span>110 units sold</span>
-                        <span>15 Bs / unit</span>
+                        <span>110 unidades vendidas</span>
+                        <span>15 Bs / unidad</span>
                       </div>
                     </div>
                   </div>
@@ -350,12 +350,12 @@ const Reports = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium">Gym Gloves</h4>
+                        <h4 className="font-medium">Guantes de Gimnasio</h4>
                         <span className="font-bold">Bs 1,320</span>
                       </div>
                       <div className="flex items-center justify-between text-sm text-white/60">
-                        <span>11 units sold</span>
-                        <span>120 Bs / unit</span>
+                        <span>11 unidades vendidas</span>
+                        <span>120 Bs / unidad</span>
                       </div>
                     </div>
                   </div>
@@ -368,15 +368,15 @@ const Reports = () => {
         <TabsContent value="membership" className="mt-4">
           <Card className="haven-card">
             <CardHeader className="pb-2">
-              <CardTitle>Membership Analytics</CardTitle>
-              <CardDescription>Tracking member growth and activity</CardDescription>
+              <CardTitle>Análisis de Membresías</CardTitle>
+              <CardDescription>Seguimiento del crecimiento y actividad de miembros</CardDescription>
             </CardHeader>
             <CardContent className="p-6 min-h-[400px] flex items-center justify-center">
               <div className="text-center text-white/60">
                 <Users size={64} className="mx-auto mb-4 text-haven-red" />
-                <p className="text-xl font-medium mb-2">Membership Trends</p>
-                <p>Visualize member acquisition and activity data</p>
-                <Button className="mt-4 bg-haven-red hover:bg-haven-red/90">Generate Report</Button>
+                <p className="text-xl font-medium mb-2">Tendencias de Membresía</p>
+                <p>Visualiza datos de adquisición y actividad de miembros</p>
+                <Button className="mt-4 bg-haven-red hover:bg-haven-red/90">Generar Reporte</Button>
               </div>
             </CardContent>
           </Card>
@@ -386,14 +386,14 @@ const Reports = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="haven-card">
               <CardHeader className="pb-2">
-                <CardTitle>Retention Rate</CardTitle>
-                <CardDescription>Member retention analysis</CardDescription>
+                <CardTitle>Tasa de Retención</CardTitle>
+                <CardDescription>Análisis de retención de miembros</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <div className="text-4xl font-bold">92%</div>
-                    <div className="text-sm text-white/60">Overall retention rate</div>
+                    <div className="text-sm text-white/60">Tasa de retención general</div>
                   </div>
                   <div className="w-20 h-20 rounded-full border-4 border-green-500 flex items-center justify-center">
                     <span className="text-green-500 font-bold">92%</span>
@@ -403,7 +403,7 @@ const Reports = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Basic Plan</span>
+                      <span className="text-sm">Plan Básico</span>
                       <span className="text-sm font-bold">85%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -413,7 +413,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Regular Plan</span>
+                      <span className="text-sm">Plan Regular</span>
                       <span className="text-sm font-bold">94%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -423,7 +423,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Premium Plan</span>
+                      <span className="text-sm">Plan Premium</span>
                       <span className="text-sm font-bold">98%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -436,16 +436,16 @@ const Reports = () => {
 
             <Card className="haven-card">
               <CardHeader className="pb-2">
-                <CardTitle>Churn Analysis</CardTitle>
-                <CardDescription>Understanding membership cancellations</CardDescription>
+                <CardTitle>Análisis de Abandono</CardTitle>
+                <CardDescription>Entendiendo las cancelaciones de membresía</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-6">
                   <div>
-                    <div className="text-white/60 mb-2">Reasons for Cancellation</div>
+                    <div className="text-white/60 mb-2">Razones de Cancelación</div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span>Financial reasons</span>
+                        <span>Razones financieras</span>
                         <span>40%</span>
                       </div>
                       <div className="w-full bg-haven-dark rounded-full h-2">
@@ -456,7 +456,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>Relocated</span>
+                      <span>Cambio de domicilio</span>
                       <span>30%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -466,7 +466,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>Switched to competitor</span>
+                      <span>Cambio a competidor</span>
                       <span>15%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -476,7 +476,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>Not using membership</span>
+                      <span>No usa la membresía</span>
                       <span>10%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">
@@ -486,7 +486,7 @@ const Reports = () => {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>Other reasons</span>
+                      <span>Otras razones</span>
                       <span>5%</span>
                     </div>
                     <div className="w-full bg-haven-dark rounded-full h-2">

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, Search, Filter, MoreHorizontal, Package, Trash2, Edit, AlertTriangle, ArrowUpDown, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,69 +46,69 @@ import {
 const productsData = [
   {
     id: "1",
-    name: "Whey Protein Powder",
-    category: "Supplement",
+    name: "Proteína en Polvo",
+    category: "Suplemento",
     price: 350,
     stock: 24,
-    status: "In Stock"
+    status: "En Stock"
   },
   {
     id: "2",
-    name: "Gym Gloves",
-    category: "Accessory",
+    name: "Guantes de Gimnasio",
+    category: "Accesorio",
     price: 120,
     stock: 15,
-    status: "In Stock"
+    status: "En Stock"
   },
   {
     id: "3",
-    name: "Protein Bar",
-    category: "Supplement",
+    name: "Barra de Proteína",
+    category: "Suplemento",
     price: 15,
     stock: 36,
-    status: "In Stock"
+    status: "En Stock"
   },
   {
     id: "4",
-    name: "Women's Leggings",
-    category: "Clothing",
+    name: "Leggings para Mujer",
+    category: "Ropa",
     price: 180,
     stock: 2,
-    status: "Low Stock"
+    status: "Poco Stock"
   },
   {
     id: "5",
-    name: "Shaker Bottle",
-    category: "Accessory",
+    name: "Botella Shaker",
+    category: "Accesorio",
     price: 45,
     stock: 0,
-    status: "Out of Stock"
+    status: "Sin Stock"
   },
   {
     id: "6",
-    name: "Pre-Workout Supplement",
-    category: "Supplement",
+    name: "Suplemento Pre-Entrenamiento",
+    category: "Suplemento",
     price: 220,
     stock: 8,
-    status: "In Stock"
+    status: "En Stock"
   },
   {
     id: "7",
-    name: "Men's T-Shirt",
-    category: "Clothing",
+    name: "Camiseta para Hombre",
+    category: "Ropa",
     price: 150,
     stock: 0,
-    status: "Out of Stock"
+    status: "Sin Stock"
   },
 ];
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
-    case "In Stock":
+    case "En Stock":
       return "bg-green-500/20 text-green-400";
-    case "Low Stock":
+    case "Poco Stock":
       return "bg-yellow-500/20 text-yellow-400";
-    case "Out of Stock":
+    case "Sin Stock":
       return "bg-red-500/20 text-red-400";
     default:
       return "bg-gray-500/20 text-gray-400";
@@ -116,19 +117,19 @@ const getStatusBadgeClass = (status: string) => {
 
 const getCategoryBadgeClass = (category: string) => {
   switch (category) {
-    case "Supplement":
+    case "Suplemento":
       return "bg-blue-500/20 text-blue-400";
-    case "Accessory":
+    case "Accesorio":
       return "bg-purple-500/20 text-purple-400";
-    case "Clothing":
+    case "Ropa":
       return "bg-pink-500/20 text-pink-400";
     default:
       return "bg-gray-500/20 text-gray-400";
   }
 };
 
-const lowStockItems = productsData.filter(product => product.status === "Low Stock").length;
-const outOfStockItems = productsData.filter(product => product.status === "Out of Stock").length;
+const lowStockItems = productsData.filter(product => product.status === "Poco Stock").length;
+const outOfStockItems = productsData.filter(product => product.status === "Sin Stock").length;
 
 const Products = () => {
   const [openNewProduct, setOpenNewProduct] = useState(false);
@@ -149,41 +150,41 @@ const Products = () => {
             </DialogTrigger>
             <DialogContent className="bg-haven-gray text-white border-white/10">
               <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
+                <DialogTitle>Añadir Nuevo Producto</DialogTitle>
                 <DialogDescription className="text-white/60">
-                  Fill out the form below to add a new product to inventory
+                  Completa el formulario para añadir un nuevo producto al inventario
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">
-                    Name
+                    Nombre
                   </Label>
                   <Input
                     id="name"
-                    placeholder="Product name"
+                    placeholder="Nombre del producto"
                     className="col-span-3 bg-haven-dark border-white/10"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="category" className="text-right">
-                    Category
+                    Categoría
                   </Label>
                   <Select>
                     <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder="Seleccionar categoría" />
                     </SelectTrigger>
                     <SelectContent className="bg-haven-gray border-white/10">
-                      <SelectItem value="supplement">Supplement</SelectItem>
-                      <SelectItem value="accessory">Accessory</SelectItem>
-                      <SelectItem value="clothing">Clothing</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="supplement">Suplemento</SelectItem>
+                      <SelectItem value="accessory">Accesorio</SelectItem>
+                      <SelectItem value="clothing">Ropa</SelectItem>
+                      <SelectItem value="other">Otro</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="price" className="text-right">
-                    Price (Bs)
+                    Precio (Bs)
                   </Label>
                   <Input
                     id="price"
@@ -194,7 +195,7 @@ const Products = () => {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="stock" className="text-right">
-                    Stock Quantity
+                    Cantidad en Stock
                   </Label>
                   <Input
                     id="stock"
@@ -205,21 +206,21 @@ const Products = () => {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="description" className="text-right">
-                    Description
+                    Descripción
                   </Label>
                   <Input
                     id="description"
-                    placeholder="Product description"
+                    placeholder="Descripción del producto"
                     className="col-span-3 bg-haven-dark border-white/10"
                   />
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpenNewProduct(false)} className="border-white/10 hover:bg-haven-dark">
-                  Cancel
+                  Cancelar
                 </Button>
                 <Button className="bg-haven-red hover:bg-haven-red/90">
-                  Add Product
+                  Añadir Producto
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -239,9 +240,9 @@ const Products = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Total Products</p>
+                <p className="text-sm text-white/60">Total Productos</p>
                 <p className="text-2xl font-bold">{productsData.length}</p>
-                <p className="text-xs text-white/60">Across all categories</p>
+                <p className="text-xs text-white/60">En todas las categorías</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-haven-red/20 flex items-center justify-center">
                 <Package className="text-haven-red" size={24} />
@@ -254,9 +255,9 @@ const Products = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Low Stock Alert</p>
+                <p className="text-sm text-white/60">Alerta de Poco Stock</p>
                 <p className="text-2xl font-bold">{lowStockItems}</p>
-                <p className="text-xs text-yellow-500">Items need restock soon</p>
+                <p className="text-xs text-yellow-500">Requieren reabastecimiento pronto</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
                 <AlertTriangle className="text-yellow-500" size={24} />
@@ -269,9 +270,9 @@ const Products = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-white/60">Out of Stock</p>
+                <p className="text-sm text-white/60">Sin Stock</p>
                 <p className="text-2xl font-bold">{outOfStockItems}</p>
-                <p className="text-xs text-red-500">Items requiring reorder</p>
+                <p className="text-xs text-red-500">Productos que requieren pedido</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
                 <Package className="text-red-500" size={24} />
@@ -283,8 +284,8 @@ const Products = () => {
 
       <Tabs defaultValue="inventory" className="w-full">
         <TabsList className="bg-haven-dark grid grid-cols-2 w-full max-w-md">
-          <TabsTrigger value="inventory" className="data-[state=active]:bg-haven-red">Inventory</TabsTrigger>
-          <TabsTrigger value="sales" className="data-[state=active]:bg-haven-red">Sales History</TabsTrigger>
+          <TabsTrigger value="inventory" className="data-[state=active]:bg-haven-red">Inventario</TabsTrigger>
+          <TabsTrigger value="sales" className="data-[state=active]:bg-haven-red">Historial de Ventas</TabsTrigger>
         </TabsList>
         <TabsContent value="inventory" className="mt-4">
           <Card className="bg-haven-gray border-white/10 text-white">
@@ -293,24 +294,24 @@ const Products = () => {
                 <div className="relative max-w-md w-full">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-white/40" />
                   <Input
-                    placeholder="Search products..."
+                    placeholder="Buscar productos..."
                     className="bg-haven-dark border-white/10 pl-10"
                   />
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" className="border-white/10 hover:bg-haven-dark">
                     <Filter className="mr-2 h-4 w-4" />
-                    Filter
+                    Filtrar
                   </Button>
                   <Select>
                     <SelectTrigger className="w-[180px] bg-haven-dark border-white/10">
-                      <SelectValue placeholder="All categories" />
+                      <SelectValue placeholder="Todas las categorías" />
                     </SelectTrigger>
                     <SelectContent className="bg-haven-gray border-white/10">
-                      <SelectItem value="all">All categories</SelectItem>
-                      <SelectItem value="supplement">Supplements</SelectItem>
-                      <SelectItem value="accessory">Accessories</SelectItem>
-                      <SelectItem value="clothing">Clothing</SelectItem>
+                      <SelectItem value="all">Todas las categorías</SelectItem>
+                      <SelectItem value="supplement">Suplementos</SelectItem>
+                      <SelectItem value="accessory">Accesorios</SelectItem>
+                      <SelectItem value="clothing">Ropa</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -322,13 +323,13 @@ const Products = () => {
                     <TableRow className="border-white/10 hover:bg-transparent">
                       <TableHead>
                         <div className="flex items-center">
-                          Product <ArrowUpDown className="ml-1 h-3 w-3" />
+                          Producto <ArrowUpDown className="ml-1 h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead>Category</TableHead>
+                      <TableHead>Categoría</TableHead>
                       <TableHead>
                         <div className="flex items-center">
-                          Price (Bs) <ArrowUpDown className="ml-1 h-3 w-3" />
+                          Precio (Bs) <ArrowUpDown className="ml-1 h-3 w-3" />
                         </div>
                       </TableHead>
                       <TableHead>
@@ -336,8 +337,8 @@ const Products = () => {
                           Stock <ArrowUpDown className="ml-1 h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -365,13 +366,13 @@ const Products = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-haven-gray border-white/10">
                               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                                <Edit className="h-4 w-4" /> Edit Product
+                                <Edit className="h-4 w-4" /> Editar Producto
                               </DropdownMenuItem>
                               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                                <Package className="h-4 w-4" /> Update Stock
+                                <Package className="h-4 w-4" /> Actualizar Stock
                               </DropdownMenuItem>
                               <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
-                                <Trash2 className="h-4 w-4" /> Delete
+                                <Trash2 className="h-4 w-4" /> Eliminar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -389,9 +390,9 @@ const Products = () => {
             <CardContent className="p-6 flex items-center justify-center min-h-[300px]">
               <div className="text-center text-white/60">
                 <Package size={64} className="mx-auto mb-4 text-haven-red" />
-                <p className="text-xl font-medium mb-2">Sales History</p>
-                <p>Track your product sales history and performance</p>
-                <Button className="mt-4 bg-haven-red hover:bg-haven-red/90">View Sales Reports</Button>
+                <p className="text-xl font-medium mb-2">Historial de Ventas</p>
+                <p>Visualiza el historial y rendimiento de ventas de productos</p>
+                <Button className="mt-4 bg-haven-red hover:bg-haven-red/90">Ver Reportes de Ventas</Button>
               </div>
             </CardContent>
           </Card>
