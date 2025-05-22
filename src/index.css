@@ -77,12 +77,36 @@
   .table-wrapper {
     @apply bg-haven-gray border-white/10 text-white rounded-lg overflow-hidden;
   }
+
+  /* Inputs and selects in dark theme */
+  .haven-input, .haven-select {
+    @apply bg-haven-dark border-white/10 text-white;
+  }
+  
+  /* Table styling for dark theme */
+  .haven-table th {
+    @apply text-white/70 border-white/10;
+  }
+  
+  .haven-table td {
+    @apply text-white border-white/10;
+  }
+  
+  .haven-table tr:hover {
+    @apply bg-haven-dark/70;
+  }
+
+  /* Search containers */
+  .haven-search-container {
+    @apply bg-haven-dark border-white/10 text-white;
+  }
 }
 
 /* Personalización de colores Haven Gym */
 :root {
   --haven-red: #e53935;
   --haven-gray: #212121;
+  --haven-dark: #121212;
 }
 
 .text-haven-red {
@@ -95,4 +119,25 @@
 
 .bg-haven-gray {
   background-color: var(--haven-gray);
+}
+
+.bg-haven-dark {
+  background-color: var(--haven-dark);
+}
+
+/* Asegurando que las tablas y sus encabezados tengan el color correcto */
+table, th, td {
+  color: white;
+}
+
+/* Asegurando que los inputs y selects tengan los fondos correctos */
+input, select, textarea {
+  background-color: var(--haven-dark);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Asegurando que los diálogos y menús desplegables tengan el fondo correcto */
+.dialog-content, .dropdown-content {
+  background-color: var(--haven-gray);
+  border-color: rgba(255, 255, 255, 0.1);
 }
