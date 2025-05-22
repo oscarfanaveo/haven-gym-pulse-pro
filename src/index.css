@@ -67,6 +67,16 @@
   .nav-link.active {
     @apply bg-white/10 text-white;
   }
+  
+  /* Card dark theme styling */
+  .haven-card {
+    @apply bg-haven-gray border-white/10 text-white;
+  }
+  
+  /* Table dark theme styling */
+  .table-wrapper {
+    @apply bg-haven-gray border-white/10 text-white rounded-lg overflow-hidden;
+  }
 }
 
 /* Personalización de colores Haven Gym */

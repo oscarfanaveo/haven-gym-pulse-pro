@@ -235,7 +235,7 @@ const Products = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="haven-card">
+        <Card className="bg-haven-gray border-white/10 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -250,7 +250,7 @@ const Products = () => {
           </CardContent>
         </Card>
 
-        <Card className="haven-card">
+        <Card className="bg-haven-gray border-white/10 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -265,7 +265,7 @@ const Products = () => {
           </CardContent>
         </Card>
 
-        <Card className="haven-card">
+        <Card className="bg-haven-gray border-white/10 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -287,7 +287,7 @@ const Products = () => {
           <TabsTrigger value="sales" className="data-[state=active]:bg-haven-red">Sales History</TabsTrigger>
         </TabsList>
         <TabsContent value="inventory" className="mt-4">
-          <Card className="haven-card">
+          <Card className="bg-haven-gray border-white/10 text-white">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
                 <div className="relative max-w-md w-full">
@@ -385,7 +385,7 @@ const Products = () => {
           </Card>
         </TabsContent>
         <TabsContent value="sales" className="mt-4">
-          <Card className="haven-card">
+          <Card className="bg-haven-gray border-white/10 text-white">
             <CardContent className="p-6 flex items-center justify-center min-h-[300px]">
               <div className="text-center text-white/60">
                 <Package size={64} className="mx-auto mb-4 text-haven-red" />
