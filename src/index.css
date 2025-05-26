@@ -55,7 +55,17 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-haven-dark text-white;
+  }
+  
+  /* Forzar tema oscuro para toda la aplicación */
+  html {
+    @apply bg-haven-dark;
+  }
+  
+  /* Asegurar que todos los elementos tengan fondo oscuro por defecto */
+  div, main, section, article, aside, header, footer, nav {
+    @apply text-white;
   }
 }
 
@@ -125,19 +135,79 @@
   background-color: var(--haven-dark);
 }
 
-/* Asegurando que las tablas y sus encabezados tengan el color correcto */
+/* Forzar estilos oscuros para todos los componentes */
+[data-radix-popper-content-wrapper] {
+  z-index: 50;
+}
+
+/* Diálogos y modales */
+[role="dialog"], .dialog-overlay, .dialog-content {
+  background-color: var(--haven-gray) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Dropdowns y menús */
+[role="menu"], [role="listbox"], .dropdown-content, [data-state="open"] {
+  background-color: var(--haven-gray) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Inputs, selects y textareas */
+input, select, textarea, [role="combobox"] {
+  background-color: var(--haven-dark) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Labels */
+label {
+  color: white !important;
+}
+
+/* Tablas */
 table, th, td {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Botones */
+button {
   color: white;
 }
 
-/* Asegurando que los inputs y selects tengan los fondos correctos */
-input, select, textarea {
-  background-color: var(--haven-dark);
-  border-color: rgba(255, 255, 255, 0.1);
+button[data-state="open"] {
+  background-color: var(--haven-dark) !important;
 }
 
-/* Asegurando que los diálogos y menús desplegables tengan el fondo correcto */
-.dialog-content, .dropdown-content {
-  background-color: var(--haven-gray);
-  border-color: rgba(255, 255, 255, 0.1);
+/* Asegurar que el contenido principal tenga fondo oscuro */
+main {
+  background-color: var(--haven-dark) !important;
+}
+
+/* Cards */
+.card, [data-state] {
+  background-color: var(--haven-gray) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Popover y tooltips */
+[data-radix-popper-content-wrapper] [role="tooltip"],
+[data-radix-popper-content-wrapper] [role="dialog"] {
+  background-color: var(--haven-gray) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Select triggers */
+[role="combobox"] {
+  background-color: var(--haven-dark) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
 }
