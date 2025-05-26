@@ -1,5 +1,5 @@
 
-import { Filter, MoreHorizontal, Edit, Package, Trash2, ArrowUpDown, Search } from "lucide-react";
+import { Filter, MoreHorizontal, Edit, Package, Trash2, ArrowUpDown, Search, Plus } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
@@ -64,6 +65,18 @@ export const getCategoryBadgeClass = (category: string) => {
 };
 
 const ProductsTable = ({ products }: ProductsTableProps) => {
+  const { addItem } = useCart();
+
+  const handleAddToCart = (product: Product) => {
+    if (product.status === "Sin Stock") return;
+    
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price
+    });
+  };
+
   return (
     <div className="overflow-x-auto">
       <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
@@ -113,6 +126,7 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
               </div>
             </TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead>Carrito</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -131,6 +145,17 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
                 <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(product.status)}`}>
                   {product.status}
                 </span>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-white/10 hover:bg-haven-red hover:border-haven-red disabled:opacity-50"
+                  onClick={() => handleAddToCart(product)}
+                  disabled={product.status === "Sin Stock"}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>

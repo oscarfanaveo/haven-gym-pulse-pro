@@ -13,6 +13,8 @@ import ProductStatsCards from "@/components/products/ProductStatsCards";
 import ProductsTable from "@/components/products/ProductsTable";
 import AddProductDialog from "@/components/products/AddProductDialog";
 import ProductSalesPlaceholder from "@/components/products/ProductSalesPlaceholder";
+import { CartProvider } from "@/contexts/CartContext";
+import ShoppingCartComponent from "@/components/ShoppingCart";
 
 // Mock data for products
 const productsData = [
@@ -77,7 +79,7 @@ const productsData = [
 const lowStockItems = productsData.filter(product => product.status === "Poco Stock").length;
 const outOfStockItems = productsData.filter(product => product.status === "Sin Stock").length;
 
-const Products = () => {
+const ProductsContent = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -87,6 +89,7 @@ const Products = () => {
         </div>
         <div className="flex gap-2">
           <AddProductDialog />
+          <ShoppingCartComponent />
           <Button 
             variant="outline" 
             className="border-white/10 bg-haven-dark hover:bg-haven-dark/80"
@@ -124,6 +127,14 @@ const Products = () => {
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+const Products = () => {
+  return (
+    <CartProvider>
+      <ProductsContent />
+    </CartProvider>
   );
 };
 
