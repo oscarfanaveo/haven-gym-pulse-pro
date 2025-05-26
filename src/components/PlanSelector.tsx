@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -40,6 +40,10 @@ const specialPlans: PlanOption[] = [
 ];
 
 const PlanSelector: React.FC<PlanSelectorProps> = ({ onPlanChange }) => {
+  const [selectedMonthly, setSelectedMonthly] = useState<string>("");
+  const [selectedSession, setSelectedSession] = useState<string>("");
+  const [selectedSpecial, setSelectedSpecial] = useState<string>("");
+
   const handlePlanSelect = (type: string, value: string) => {
     const planMap: Record<string, PlanOption[]> = {
       monthly: monthlyPlans,
@@ -50,13 +54,28 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ onPlanChange }) => {
     const selectedPlan = planMap[type].find(plan => plan.id === value);
     
     if (selectedPlan) {
+      // Resetear los otros dropdowns cuando se selecciona uno
+      if (type === 'monthly') {
+        setSelectedMonthly(value);
+        setSelectedSession("");
+        setSelectedSpecial("");
+      } else if (type === 'session') {
+        setSelectedSession(value);
+        setSelectedMonthly("");
+        setSelectedSpecial("");
+      } else if (type === 'special') {
+        setSelectedSpecial(value);
+        setSelectedMonthly("");
+        setSelectedSession("");
+      }
+      
       onPlanChange(selectedPlan.name, selectedPlan.price);
     }
   };
 
   return (
     <div className="grid grid-cols-3 gap-2">
-      <Select onValueChange={(value) => handlePlanSelect('monthly', value)}>
+      <Select value={selectedMonthly} onValueChange={(value) => handlePlanSelect('monthly', value)}>
         <SelectTrigger className="bg-haven-dark border-white/10">
           <SelectValue placeholder="Plan Mensual" />
         </SelectTrigger>
@@ -67,7 +86,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ onPlanChange }) => {
         </SelectContent>
       </Select>
       
-      <Select onValueChange={(value) => handlePlanSelect('session', value)}>
+      <Select value={selectedSession} onValueChange={(value) => handlePlanSelect('session', value)}>
         <SelectTrigger className="bg-haven-dark border-white/10">
           <SelectValue placeholder="Sesión" />
         </SelectTrigger>
@@ -78,7 +97,7 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ onPlanChange }) => {
         </SelectContent>
       </Select>
       
-      <Select onValueChange={(value) => handlePlanSelect('special', value)}>
+      <Select value={selectedSpecial} onValueChange={(value) => handlePlanSelect('special', value)}>
         <SelectTrigger className="bg-haven-dark border-white/10">
           <SelectValue placeholder="Planes Especiales" />
         </SelectTrigger>
