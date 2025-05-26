@@ -12,8 +12,11 @@ import Reports from "./pages/Reports";
 import Training from "./pages/Training";
 import Sales from "./pages/Sales";
 import Users from "./pages/Users";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { CartProvider } from "./contexts/CartContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -22,22 +25,29 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <CartProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="subscriptions" element={<Subscriptions />} />
-              <Route path="sales" element={<Sales />} />
-              <Route path="products" element={<Products />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="training" element={<Training />} />
-              <Route path="users" element={<Users />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="subscriptions" element={<Subscriptions />} />
+                <Route path="sales" element={<Sales />} />
+                <Route path="products" element={<Products />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="training" element={<Training />} />
+                <Route path="users" element={<Users />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

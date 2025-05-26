@@ -1,5 +1,8 @@
 
-import { Search, Menu, Bell } from "lucide-react";
+import { Search, Menu, Bell, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -7,6 +10,14 @@ interface HeaderProps {
 }
 
 const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <header className="bg-haven-gray border-b border-white/10 h-16 flex items-center px-4 lg:px-6">
       <button
@@ -34,9 +45,17 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-haven-red to-rose-600" />
           <div className="hidden md:block">
-            <p className="text-sm font-medium">Administrador</p>
+            <p className="text-sm font-medium">{user?.username}</p>
             <p className="text-xs text-white/60">Haven Gym</p>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-white/70 hover:text-white hover:bg-haven-dark"
+          >
+            <LogOut size={16} />
+          </Button>
         </div>
       </div>
     </header>

@@ -2,7 +2,7 @@
 import { NavLink } from "react-router-dom";
 import { 
   UsersRound, ShoppingBag, BarChart, Dumbbell, Home, 
-  ChevronLeft, ChevronRight, LogOut, ShoppingCart, UserCog
+  ChevronLeft, ChevronRight, ShoppingCart, UserCog
 } from "lucide-react";
 
 interface SidebarProps {
@@ -109,24 +109,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         <NavLink
           to="/users"
           className={({ isActive }) =>
-            `nav-link ${isActive ? "active" : ""} mb-2`
+            `nav-link ${isActive ? "active" : ""}`
           }
         >
           <UserCog size={20} />
           {open && <span>Gestión de Usuarios</span>}
         </NavLink>
-        <button className="nav-link w-full justify-between">
-          {open ? (
-            <>
-              <span className="flex items-center">
-                <LogOut size={20} className="mr-2" />
-                Cerrar Sesión
-              </span>
-            </>
-          ) : (
-            <LogOut size={20} />
-          )}
-        </button>
       </div>
     </aside>
   );
