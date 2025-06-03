@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Dumbbell, Plus, Search, Filter, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Dumbbell, Plus, Search, Filter, Edit, Trash2, MoreHorizontal, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,16 +33,17 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 // Datos de ejemplo para ejercicios de entrenamiento
-const exercisesData = [
+const initialExercisesData = [
   {
     id: "1",
     name: "Press de Banca",
     category: "Pecho",
     machine: "Máquina de Press de Banca",
     description: "Acuéstese en el banco con los pies en el suelo. Agarre la barra con las manos un poco más anchas que los hombros. Baje la barra al nivel del pecho, luego empuje hacia arriba.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=400&h=300&fit=crop"
   },
   {
     id: "2",
@@ -51,7 +51,7 @@ const exercisesData = [
     category: "Piernas",
     machine: "Máquina de Prensa de Piernas",
     description: "Siéntese en la máquina con la espalda contra el respaldo. Coloque los pies separados a la altura de las caderas en la plataforma. Empuje la plataforma extendiendo las piernas.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1452960962994-acf4fd70b632?w=400&h=300&fit=crop"
   },
   {
     id: "3",
@@ -59,7 +59,7 @@ const exercisesData = [
     category: "Espalda",
     machine: "Máquina de Cables",
     description: "Siéntese en la máquina con los muslos asegurados. Agarre la barra con un agarre ancho. Tire de la barra hacia abajo hasta el nivel del pecho mientras mantiene la espalda recta.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=400&h=300&fit=crop"
   },
   {
     id: "4",
@@ -67,7 +67,7 @@ const exercisesData = [
     category: "Brazos",
     machine: "Mancuerna",
     description: "De pie con una mancuerna en cada mano, brazos a los lados. Mantenga los codos cerca del torso y levante las pesas hasta el nivel de los hombros.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1438565434616-3ef039228b15?w=400&h=300&fit=crop"
   },
   {
     id: "5",
@@ -75,7 +75,7 @@ const exercisesData = [
     category: "Cardio",
     machine: "Cinta de Correr",
     description: "Configure la velocidad y la inclinación deseadas. Mantenga una postura adecuada con los hombros hacia atrás y el núcleo activado mientras corre.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1501286353178-1ec881214838?w=400&h=300&fit=crop"
   },
   {
     id: "6",
@@ -83,7 +83,7 @@ const exercisesData = [
     category: "Hombros",
     machine: "Máquina de Press de Hombros",
     description: "Siéntese con la espalda contra el respaldo. Agarre las asas a la altura de los hombros. Empuje hacia arriba hasta que los brazos estén extendidos, luego baje de nuevo.",
-    image: "placeholder.svg"
+    image: "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=300&fit=crop"
   },
 ];
 
@@ -97,13 +97,112 @@ const categoryColors: Record<string, string> = {
   "Core": "bg-teal-500/20 text-teal-400",
 };
 
+interface Exercise {
+  id: string;
+  name: string;
+  category: string;
+  machine: string;
+  description: string;
+  image: string;
+}
+
 const Training = () => {
+  const { toast } = useToast();
+  const [exercisesData, setExercisesData] = useState<Exercise[]>(initialExercisesData);
   const [openNewExercise, setOpenNewExercise] = useState(false);
+  const [openEditExercise, setOpenEditExercise] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [newExercise, setNewExercise] = useState({
+    name: "",
+    category: "",
+    machine: "",
+    description: "",
+    image: ""
+  });
 
   const filteredExercises = activeCategory === "all" 
     ? exercisesData 
     : exercisesData.filter(exercise => exercise.category.toLowerCase() === activeCategory);
+
+  const handleEditExercise = (exercise: Exercise) => {
+    setEditingExercise(exercise);
+    setOpenEditExercise(true);
+  };
+
+  const handleDeleteExercise = (exerciseId: string) => {
+    setExercisesData(prev => prev.filter(ex => ex.id !== exerciseId));
+    toast({
+      title: "Ejercicio eliminado",
+      description: "El ejercicio ha sido eliminado exitosamente.",
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingExercise) return;
+    
+    setExercisesData(prev => prev.map(ex => 
+      ex.id === editingExercise.id ? editingExercise : ex
+    ));
+    setOpenEditExercise(false);
+    setEditingExercise(null);
+    toast({
+      title: "Ejercicio actualizado",
+      description: "Los cambios han sido guardados exitosamente.",
+    });
+  };
+
+  const handleAddExercise = () => {
+    if (!newExercise.name || !newExercise.category) {
+      toast({
+        title: "Error",
+        description: "Por favor completa todos los campos requeridos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const exercise: Exercise = {
+      id: Date.now().toString(),
+      ...newExercise
+    };
+
+    setExercisesData(prev => [...prev, exercise]);
+    setNewExercise({
+      name: "",
+      category: "",
+      machine: "",
+      description: "",
+      image: ""
+    });
+    setOpenNewExercise(false);
+    toast({
+      title: "Ejercicio añadido",
+      description: "El nuevo ejercicio ha sido añadido exitosamente.",
+    });
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit: boolean = false) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        if (isEdit && editingExercise) {
+          setEditingExercise({
+            ...editingExercise,
+            image: imageUrl
+          });
+        } else {
+          setNewExercise(prev => ({
+            ...prev,
+            image: imageUrl
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -128,30 +227,32 @@ const Training = () => {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                  Nombre
+                  Nombre *
                 </Label>
                 <Input
                   id="name"
                   placeholder="Nombre del ejercicio"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={newExercise.name}
+                  onChange={(e) => setNewExercise(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="text-right">
-                  Categoría
+                  Categoría *
                 </Label>
-                <Select>
+                <Select value={newExercise.category} onValueChange={(value) => setNewExercise(prev => ({ ...prev, category: value }))}>
                   <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
                     <SelectValue placeholder="Seleccionar categoría" />
                   </SelectTrigger>
                   <SelectContent className="bg-haven-gray border-white/10">
-                    <SelectItem value="chest">Pecho</SelectItem>
-                    <SelectItem value="back">Espalda</SelectItem>
-                    <SelectItem value="legs">Piernas</SelectItem>
-                    <SelectItem value="arms">Brazos</SelectItem>
-                    <SelectItem value="shoulders">Hombros</SelectItem>
-                    <SelectItem value="cardio">Cardio</SelectItem>
-                    <SelectItem value="core">Core</SelectItem>
+                    <SelectItem value="Pecho">Pecho</SelectItem>
+                    <SelectItem value="Espalda">Espalda</SelectItem>
+                    <SelectItem value="Piernas">Piernas</SelectItem>
+                    <SelectItem value="Brazos">Brazos</SelectItem>
+                    <SelectItem value="Hombros">Hombros</SelectItem>
+                    <SelectItem value="Cardio">Cardio</SelectItem>
+                    <SelectItem value="Core">Core</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -163,6 +264,8 @@ const Training = () => {
                   id="machine"
                   placeholder="Equipo requerido"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={newExercise.machine}
+                  onChange={(e) => setNewExercise(prev => ({ ...prev, machine: e.target.value }))}
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
@@ -174,30 +277,141 @@ const Training = () => {
                   placeholder="Instrucciones del ejercicio"
                   className="col-span-3 bg-haven-dark border-white/10"
                   rows={4}
+                  value={newExercise.description}
+                  onChange={(e) => setNewExercise(prev => ({ ...prev, description: e.target.value }))}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="image" className="text-right">
                   Imagen
                 </Label>
-                <Input
-                  id="image"
-                  type="file"
-                  className="col-span-3 bg-haven-dark border-white/10"
-                />
+                <div className="col-span-3 space-y-2">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    className="bg-haven-dark border-white/10"
+                    onChange={(e) => handleImageUpload(e)}
+                  />
+                  {newExercise.image && (
+                    <img 
+                      src={newExercise.image} 
+                      alt="Vista previa" 
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  )}
+                </div>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenNewExercise(false)} className="border-white/10 hover:bg-haven-dark">
                 Cancelar
               </Button>
-              <Button className="bg-haven-red hover:bg-haven-red/90">
+              <Button onClick={handleAddExercise} className="bg-haven-red hover:bg-haven-red/90">
                 Añadir Ejercicio
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Dialog para editar ejercicio */}
+      <Dialog open={openEditExercise} onOpenChange={setOpenEditExercise}>
+        <DialogContent className="bg-haven-gray text-white border-white/10">
+          <DialogHeader>
+            <DialogTitle>Editar Ejercicio</DialogTitle>
+            <DialogDescription className="text-white/60">
+              Modifica los detalles del ejercicio
+            </DialogDescription>
+          </DialogHeader>
+          {editingExercise && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-name" className="text-right">
+                  Nombre *
+                </Label>
+                <Input
+                  id="edit-name"
+                  className="col-span-3 bg-haven-dark border-white/10"
+                  value={editingExercise.name}
+                  onChange={(e) => setEditingExercise({ ...editingExercise, name: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-category" className="text-right">
+                  Categoría *
+                </Label>
+                <Select value={editingExercise.category} onValueChange={(value) => setEditingExercise({ ...editingExercise, category: value })}>
+                  <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-haven-gray border-white/10">
+                    <SelectItem value="Pecho">Pecho</SelectItem>
+                    <SelectItem value="Espalda">Espalda</SelectItem>
+                    <SelectItem value="Piernas">Piernas</SelectItem>
+                    <SelectItem value="Brazos">Brazos</SelectItem>
+                    <SelectItem value="Hombros">Hombros</SelectItem>
+                    <SelectItem value="Cardio">Cardio</SelectItem>
+                    <SelectItem value="Core">Core</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-machine" className="text-right">
+                  Máquina/Equipo
+                </Label>
+                <Input
+                  id="edit-machine"
+                  className="col-span-3 bg-haven-dark border-white/10"
+                  value={editingExercise.machine}
+                  onChange={(e) => setEditingExercise({ ...editingExercise, machine: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="edit-description" className="text-right pt-2">
+                  Descripción
+                </Label>
+                <Textarea
+                  id="edit-description"
+                  className="col-span-3 bg-haven-dark border-white/10"
+                  rows={4}
+                  value={editingExercise.description}
+                  onChange={(e) => setEditingExercise({ ...editingExercise, description: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-image" className="text-right">
+                  Imagen
+                </Label>
+                <div className="col-span-3 space-y-2">
+                  <Input
+                    id="edit-image"
+                    type="file"
+                    accept="image/*"
+                    className="bg-haven-dark border-white/10"
+                    onChange={(e) => handleImageUpload(e, true)}
+                  />
+                  {editingExercise.image && (
+                    <img 
+                      src={editingExercise.image} 
+                      alt="Vista previa" 
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenEditExercise(false)} className="border-white/10 hover:bg-haven-dark">
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} className="bg-haven-red hover:bg-haven-red/90">
+              Guardar Cambios
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Tabs defaultValue="grid" className="w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -240,20 +454,26 @@ const Training = () => {
                   <img 
                     src={exercise.image} 
                     alt={exercise.name} 
-                    className="w-full h-full object-cover opacity-50"
+                    className="w-full h-full object-cover"
                   />
                   <div className="absolute top-3 right-3">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-haven-gray border-white/10">
-                        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => handleEditExercise(exercise)}
+                        >
                           <Edit className="h-4 w-4" /> Editar Ejercicio
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-red-500 cursor-pointer"
+                          onClick={() => handleDeleteExercise(exercise.id)}
+                        >
                           <Trash2 className="h-4 w-4" /> Eliminar
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -310,10 +530,16 @@ const Training = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-haven-gray border-white/10">
-                              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => handleEditExercise(exercise)}
+                              >
                                 <Edit className="h-4 w-4" /> Editar Ejercicio
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="flex items-center gap-2 text-red-500 cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 text-red-500 cursor-pointer"
+                                onClick={() => handleDeleteExercise(exercise.id)}
+                              >
                                 <Trash2 className="h-4 w-4" /> Eliminar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -329,6 +555,7 @@ const Training = () => {
         </TabsContent>
       </Tabs>
 
+      {/* ... keep existing code (workout category cards section) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="haven-card bg-gradient-to-br from-blue-500/20 to-blue-600/10 hover:from-blue-500/30 hover:to-blue-600/20 transition-colors cursor-pointer group">
           <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
