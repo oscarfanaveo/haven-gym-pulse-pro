@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (username: string, password: string) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
+  hasPermission: (page: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,9 +27,25 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Hardcoded admin credentials
-  const ADMIN_USERNAME = "Admin";
-  const ADMIN_PASSWORD = "205531";
+  // Usuarios del sistema con sus credenciales y roles
+  const USERS = [
+    {
+      username: "Admin",
+      password: "205531",
+      role: "admin"
+    },
+    {
+      username: "Rolo",
+      password: "date123", 
+      role: "limited"
+    }
+  ];
+
+  // Permisos por rol
+  const ROLE_PERMISSIONS = {
+    admin: ['/', '/subscriptions', '/sales', '/products', '/reports', '/training', '/users', '/subscription-plans'],
+    limited: ['/', '/subscriptions', '/sales', '/products', '/training']
+  };
 
   useEffect(() => {
     // Check if user is already logged in (from localStorage)
@@ -39,8 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (username: string, password: string): boolean => {
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      const userData = { username: ADMIN_USERNAME, role: 'admin' };
+    const foundUser = USERS.find(u => u.username === username && u.password === password);
+    
+    if (foundUser) {
+      const userData = { username: foundUser.username, role: foundUser.role };
       setUser(userData);
       localStorage.setItem('havenGymUser', JSON.stringify(userData));
       return true;
@@ -53,11 +72,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('havenGymUser');
   };
 
+  const hasPermission = (page: string): boolean => {
+    if (!user) return false;
+    const permissions = ROLE_PERMISSIONS[user.role as keyof typeof ROLE_PERMISSIONS] || [];
+    return permissions.includes(page);
+  };
+
   const value = {
     user,
     login,
     logout,
     isAuthenticated: !!user,
+    hasPermission,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

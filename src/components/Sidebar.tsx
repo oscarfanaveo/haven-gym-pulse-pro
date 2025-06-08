@@ -4,6 +4,7 @@ import {
   UsersRound, ShoppingBag, BarChart, Dumbbell, Home, 
   ChevronLeft, ChevronRight, ShoppingCart, UserCog, Settings
 } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 interface SidebarProps {
   open: boolean;
@@ -11,6 +12,62 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
+  const { hasPermission } = useAuth();
+
+  const menuItems = [
+    {
+      to: "/",
+      icon: Home,
+      label: "Panel Principal",
+      permission: "/"
+    },
+    {
+      to: "/subscriptions",
+      icon: UsersRound,
+      label: "Suscripciones",
+      permission: "/subscriptions"
+    },
+    {
+      to: "/sales",
+      icon: ShoppingCart,
+      label: "Ventas",
+      permission: "/sales"
+    },
+    {
+      to: "/products",
+      icon: ShoppingBag,
+      label: "Productos",
+      permission: "/products"
+    },
+    {
+      to: "/reports",
+      icon: BarChart,
+      label: "Reportes",
+      permission: "/reports"
+    },
+    {
+      to: "/training",
+      icon: Dumbbell,
+      label: "Entrenamiento",
+      permission: "/training"
+    }
+  ];
+
+  const adminItems = [
+    {
+      to: "/subscription-plans",
+      icon: Settings,
+      label: "Gestión de Planes",
+      permission: "/subscription-plans"
+    },
+    {
+      to: "/users",
+      icon: UserCog,
+      label: "Gestión de Usuarios",
+      permission: "/users"
+    }
+  ];
+
   return (
     <aside
       className={`bg-haven-gray border-r border-white/10 transition-all duration-300 h-screen ${
@@ -36,94 +93,39 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
       <nav className="flex-1 overflow-y-auto py-4 px-2">
         <ul className="space-y-1">
-          <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <Home size={20} />
-              {open && <span>Panel Principal</span>}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/subscriptions"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <UsersRound size={20} />
-              {open && <span>Suscripciones</span>}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/sales"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <ShoppingCart size={20} />
-              {open && <span>Ventas</span>}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/products"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <ShoppingBag size={20} />
-              {open && <span>Productos</span>}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/reports"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <BarChart size={20} />
-              {open && <span>Reportes</span>}
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/training"
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <Dumbbell size={20} />
-              {open && <span>Entrenamiento</span>}
-            </NavLink>
-          </li>
+          {menuItems.map((item) => (
+            hasPermission(item.permission) && (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? "active" : ""}`
+                  }
+                >
+                  <item.icon size={20} />
+                  {open && <span>{item.label}</span>}
+                </NavLink>
+              </li>
+            )
+          ))}
         </ul>
       </nav>
 
       <div className="border-t border-white/10 p-2 space-y-1">
-        <NavLink
-          to="/subscription-plans"
-          className={({ isActive }) =>
-            `nav-link ${isActive ? "active" : ""}`
-          }
-        >
-          <Settings size={20} />
-          {open && <span>Gestión de Planes</span>}
-        </NavLink>
-        <NavLink
-          to="/users"
-          className={({ isActive }) =>
-            `nav-link ${isActive ? "active" : ""}`
-          }
-        >
-          <UserCog size={20} />
-          {open && <span>Gestión de Usuarios</span>}
-        </NavLink>
+        {adminItems.map((item) => (
+          hasPermission(item.permission) && (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+            >
+              <item.icon size={20} />
+              {open && <span>{item.label}</span>}
+            </NavLink>
+          )
+        ))}
       </div>
     </aside>
   );
