@@ -2,7 +2,7 @@
 import { NavLink } from "react-router-dom";
 import { 
   UsersRound, ShoppingBag, BarChart, Dumbbell, Home, 
-  ChevronLeft, ChevronRight, ShoppingCart, UserCog
+  ChevronLeft, ChevronRight, ShoppingCart, UserCog, Settings
 } from "lucide-react";
 
 interface SidebarProps {
@@ -105,7 +105,16 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         </ul>
       </nav>
 
-      <div className="border-t border-white/10 p-2">
+      <div className="border-t border-white/10 p-2 space-y-1">
+        <NavLink
+          to="/subscription-plans"
+          className={({ isActive }) =>
+            `nav-link ${isActive ? "active" : ""}`
+          }
+        >
+          <Settings size={20} />
+          {open && <span>Gestión de Planes</span>}
+        </NavLink>
         <NavLink
           to="/users"
           className={({ isActive }) =>
