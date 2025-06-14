@@ -2,7 +2,7 @@
 import { NavLink } from "react-router-dom";
 import { 
   UsersRound, ShoppingBag, BarChart, Dumbbell, Home, 
-  ChevronLeft, ChevronRight, ShoppingCart, UserCog, Settings
+  ChevronLeft, ChevronRight, ShoppingCart, UserCog, Settings, UserCheck
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -50,6 +50,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       icon: Dumbbell,
       label: "Entrenamiento",
       permission: "/training"
+    },
+    {
+      to: "/client-tracking",
+      icon: UserCheck,
+      label: "Seguimiento Cliente",
+      permission: "/client-tracking"
     }
   ];
 

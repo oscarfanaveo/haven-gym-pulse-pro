@@ -43,8 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Permisos por rol
   const ROLE_PERMISSIONS = {
-    admin: ['/', '/subscriptions', '/sales', '/products', '/reports', '/training', '/users', '/subscription-plans'],
-    limited: ['/', '/subscriptions', '/sales', '/products', '/training']
+    admin: ['/', '/subscriptions', '/sales', '/products', '/reports', '/training', '/users', '/subscription-plans', '/client-tracking'],
+    limited: ['/', '/subscriptions', '/sales', '/products', '/training', '/client-tracking']
   };
 
   useEffect(() => {

@@ -56,7 +56,10 @@ const subscriptionsData = [
     startDate: "2025-03-15",
     endDate: "2025-04-15",
     status: "Activo",
-    price: 135
+    price: 135,
+    entradas: 31,
+    codigo: "123456",
+    horario: "completo"
   },
   {
     id: "2",
@@ -65,7 +68,10 @@ const subscriptionsData = [
     startDate: "2025-03-10",
     endDate: "2025-04-10",
     status: "Activo",
-    price: 200
+    price: 200,
+    entradas: 90,
+    codigo: "789012",
+    horario: "completo"
   },
   {
     id: "3",
@@ -74,7 +80,10 @@ const subscriptionsData = [
     startDate: "2025-03-05",
     endDate: "2025-04-05",
     status: "Activo",
-    price: 160
+    price: 160,
+    entradas: 31,
+    codigo: "345678",
+    horario: "completo"
   },
   {
     id: "4",
@@ -83,7 +92,10 @@ const subscriptionsData = [
     startDate: "2025-02-20",
     endDate: "2025-03-20",
     status: "Expirado",
-    price: 135
+    price: 135,
+    entradas: 15,
+    codigo: "901234",
+    horario: "completo"
   },
   {
     id: "5",
@@ -92,7 +104,10 @@ const subscriptionsData = [
     startDate: "2025-03-01",
     endDate: "2025-04-01",
     status: "Activo",
-    price: 200
+    price: 200,
+    entradas: 90,
+    codigo: "567890",
+    horario: "completo"
   },
   {
     id: "6",
@@ -101,7 +116,10 @@ const subscriptionsData = [
     startDate: "2025-02-15",
     endDate: "2025-03-15",
     status: "Expirado",
-    price: 160
+    price: 160,
+    entradas: 31,
+    codigo: "234567",
+    horario: "completo"
   },
   {
     id: "7",
@@ -110,7 +128,10 @@ const subscriptionsData = [
     startDate: "2025-03-15",
     endDate: "2025-03-17",
     status: "Activo",
-    price: 50
+    price: 50,
+    entradas: 90,
+    codigo: "678901",
+    horario: "completo"
   },
 ];
 
@@ -142,6 +163,29 @@ const getPlanBadgeClass = (plan: string) => {
   }
 };
 
+// Function to generate client tracking data based on plan
+const generateClientData = (planName: string) => {
+  let entradas = 31; // Default for Mensual normal and solo mañanas
+  let horario = "completo"; // Default for most plans
+  
+  // Set entradas based on plan type
+  if (planName.toLowerCase().includes("premium") || planName.toLowerCase().includes("ilimitado") || planName.toLowerCase().includes("temporal")) {
+    entradas = 90;
+  } else if (planName.toLowerCase().includes("día por medio")) {
+    entradas = 12;
+  }
+  
+  // Set horario for morning-only plans
+  if (planName.toLowerCase().includes("solo mañanas")) {
+    horario = "mañanas";
+  }
+  
+  // Generate unique 6-digit code
+  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  return { entradas, codigo, horario };
+};
+
 const activeSubscriptions = subscriptionsData.filter(sub => sub.status === "Activo").length;
 const expiredSubscriptions = subscriptionsData.filter(sub => sub.status === "Expirado").length;
 const plans = [
@@ -160,6 +204,17 @@ const Subscriptions = () => {
   const [planName, setPlanName] = useState("");
 
   const handleAddMember = () => {
+    // Generate client tracking data
+    const clientData = generateClientData(planName);
+    
+    console.log("Nuevo cliente creado con:", {
+      nombre: customerName,
+      plan: planName,
+      entradas: clientData.entradas,
+      codigo: clientData.codigo,
+      horario: clientData.horario
+    });
+    
     setShowInvoice(true);
     // Don't close modal yet - we'll close it after invoice is viewed
   };
