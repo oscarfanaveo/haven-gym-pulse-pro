@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,8 +27,8 @@ const clientsData = [
     id: "1",
     name: "Juan Pérez",
     plan: "Básico",
-    startDate: "2025-03-15",
-    endDate: "2025-04-15",
+    startDate: "2025-05-15",
+    endDate: "2025-06-15",
     status: "Activo",
     price: 135,
     entradas: 31,
@@ -40,8 +39,8 @@ const clientsData = [
     id: "2",
     name: "Maria Garcia",
     plan: "Premium",
-    startDate: "2025-03-10",
-    endDate: "2025-04-10",
+    startDate: "2025-05-10",
+    endDate: "2025-06-20",
     status: "Activo",
     price: 200,
     entradas: 90,
@@ -52,8 +51,8 @@ const clientsData = [
     id: "3",
     name: "Carlos Rodriguez",
     plan: "Regular",
-    startDate: "2025-03-05",
-    endDate: "2025-04-05",
+    startDate: "2025-05-05",
+    endDate: "2025-06-25",
     status: "Activo",
     price: 160,
     entradas: 31,
@@ -76,8 +75,8 @@ const clientsData = [
     id: "5",
     name: "Luis Fernandez",
     plan: "Premium",
-    startDate: "2025-03-01",
-    endDate: "2025-04-01",
+    startDate: "2025-05-01",
+    endDate: "2025-07-01",
     status: "Activo",
     price: 200,
     entradas: 90,
@@ -88,8 +87,8 @@ const clientsData = [
     id: "6",
     name: "Sofia Morales",
     plan: "Mensual, solo mañanas",
-    startDate: "2025-02-15",
-    endDate: "2025-04-15",
+    startDate: "2025-05-15",
+    endDate: "2025-06-30",
     status: "Activo",
     price: 160,
     entradas: 31,
@@ -100,14 +99,38 @@ const clientsData = [
     id: "7",
     name: "Diego Sanchez",
     plan: "Mensual, día por medio",
-    startDate: "2025-03-15",
-    endDate: "2025-04-17",
+    startDate: "2025-05-20",
+    endDate: "2025-07-10",
     status: "Activo",
     price: 120,
     entradas: 12,
     codigo: "678901",
     horario: "completo"
   },
+  {
+    id: "8",
+    name: "Laura Gutierrez",
+    plan: "Regular",
+    startDate: "2025-05-12",
+    endDate: "2025-06-12",
+    status: "Activo",
+    price: 160,
+    entradas: 28,
+    codigo: "112233",
+    horario: "completo"
+  },
+  {
+    id: "9",
+    name: "Roberto Silva",
+    plan: "Premium",
+    startDate: "2025-05-18",
+    endDate: "2025-07-05",
+    status: "Activo",
+    price: 200,
+    entradas: 85,
+    codigo: "445566",
+    horario: "completo"
+  }
 ];
 
 const getStatusBadgeClass = (status: string) => {
