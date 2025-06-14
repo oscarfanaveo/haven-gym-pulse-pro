@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, hasPermission } = useAuth();
+  const { isAuthenticated, hasPermission, getDefaultRoute } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -17,7 +17,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Verificar si el usuario tiene permiso para acceder a esta ruta
   if (!hasPermission(location.pathname)) {
-    return <Navigate to="/" replace />;
+    // Redirigir a la ruta por defecto del rol en lugar de la raíz
+    return <Navigate to={getDefaultRoute()} replace />;
   }
 
   return <>{children}</>;

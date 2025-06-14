@@ -12,6 +12,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   hasPermission: (page: string) => boolean;
+  getDefaultRoute: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,14 +38,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     {
       username: "Rolo",
       password: "date123", 
-      role: "limited"
+      role: "recepcion"
     }
   ];
 
   // Permisos por rol
   const ROLE_PERMISSIONS = {
     admin: ['/', '/subscriptions', '/sales', '/products', '/reports', '/training', '/users', '/subscription-plans', '/client-tracking'],
-    limited: ['/', '/subscriptions', '/sales', '/products', '/training', '/client-tracking']
+    recepcion: ['/subscriptions', '/sales', '/products', '/training', '/client-tracking']
+  };
+
+  // Rutas por defecto por rol
+  const DEFAULT_ROUTES = {
+    admin: '/',
+    recepcion: '/client-tracking'
   };
 
   useEffect(() => {
@@ -78,12 +85,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return permissions.includes(page);
   };
 
+  const getDefaultRoute = (): string => {
+    if (!user) return '/';
+    return DEFAULT_ROUTES[user.role as keyof typeof DEFAULT_ROUTES] || '/';
+  };
+
   const value = {
     user,
     login,
     logout,
     isAuthenticated: !!user,
     hasPermission,
+    getDefaultRoute,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
