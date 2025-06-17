@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +12,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -62,6 +72,7 @@ const SubscriptionPlans = () => {
     price: 0,
     category: 'monthly'
   });
+  const [planToDelete, setPlanToDelete] = useState<Plan | null>(null);
 
   const getCategoryName = (category: string) => {
     switch (category) {
@@ -101,11 +112,100 @@ const SubscriptionPlans = () => {
 
   const handleDeletePlan = (planId: string) => {
     setPlans(plans.filter(plan => plan.id !== planId));
+    setPlanToDelete(null);
+  };
+
+  const confirmDeletePlan = (plan: Plan) => {
+    setPlanToDelete(plan);
   };
 
   const monthlyPlans = plans.filter(plan => plan.category === 'monthly');
   const sessionPlans = plans.filter(plan => plan.category === 'session');
   const specialPlans = plans.filter(plan => plan.category === 'special');
+
+  const renderDeleteButton = (plan: Plan) => (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="bg-haven-gray text-white border-white/10">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirmar Eliminación</AlertDialogTitle>
+          <AlertDialogDescription className="text-white/60">
+            ¿Está seguro de que desea eliminar el plan "{plan.name}"?
+            <div className="mt-2 p-2 bg-haven-dark/50 rounded">
+              <p className="font-medium">{plan.name}</p>
+              <p className="text-white/80">Precio: {plan.price} Bs</p>
+              <p className="text-red-400 text-sm mt-1">Esta acción no se puede deshacer.</p>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="border-white/10 hover:bg-haven-dark text-white">
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            className="bg-red-600 hover:bg-red-700 text-white"
+            onClick={() => handleDeletePlan(plan.id)}
+          >
+            Eliminar Plan
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  const renderPlanCard = (plan: Plan) => (
+    <Card key={plan.id} className="haven-card">
+      <CardContent className="p-4">
+        {editingPlan?.id === plan.id ? (
+          <div className="space-y-3">
+            <Input
+              value={editingPlan.name}
+              onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
+              className="bg-haven-dark border-white/10"
+            />
+            <Input
+              type="number"
+              value={editingPlan.price}
+              onChange={(e) => setEditingPlan({...editingPlan, price: Number(e.target.value)})}
+              className="bg-haven-dark border-white/10"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setEditingPlan(null)} className="border-white/10">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className={`px-2 py-1 rounded-full text-xs ${getCategoryColor(plan.category)}`}>
+                {getCategoryName(plan.category)}
+              </span>
+            </div>
+            <h4 className="font-medium text-white">{plan.name}</h4>
+            <p className="text-xl font-bold text-haven-red">{plan.price} Bs</p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => setEditingPlan(plan)} className="border-white/10">
+                <Edit className="h-4 w-4" />
+              </Button>
+              {renderDeleteButton(plan)}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-6">
@@ -134,53 +234,7 @@ const SubscriptionPlans = () => {
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-white mb-4">Planes Mensuales</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {monthlyPlans.map((plan) => (
-                  <Card key={plan.id} className="haven-card">
-                    <CardContent className="p-4">
-                      {editingPlan?.id === plan.id ? (
-                        <div className="space-y-3">
-                          <Input
-                            value={editingPlan.name}
-                            onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <Input
-                            type="number"
-                            value={editingPlan.price}
-                            onChange={(e) => setEditingPlan({...editingPlan, price: Number(e.target.value)})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">
-                              <Save className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(null)} className="border-white/10">
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className={`px-2 py-1 rounded-full text-xs ${getCategoryColor(plan.category)}`}>
-                              {getCategoryName(plan.category)}
-                            </span>
-                          </div>
-                          <h4 className="font-medium text-white">{plan.name}</h4>
-                          <p className="text-xl font-bold text-haven-red">{plan.price} Bs</p>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(plan)} className="border-white/10">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDeletePlan(plan.id)} className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {monthlyPlans.map(renderPlanCard)}
               </div>
             </CardContent>
           </Card>
@@ -191,53 +245,7 @@ const SubscriptionPlans = () => {
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-white mb-4">Planes de Sesión</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sessionPlans.map((plan) => (
-                  <Card key={plan.id} className="haven-card">
-                    <CardContent className="p-4">
-                      {editingPlan?.id === plan.id ? (
-                        <div className="space-y-3">
-                          <Input
-                            value={editingPlan.name}
-                            onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <Input
-                            type="number"
-                            value={editingPlan.price}
-                            onChange={(e) => setEditingPlan({...editingPlan, price: Number(e.target.value)})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">
-                              <Save className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(null)} className="border-white/10">
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className={`px-2 py-1 rounded-full text-xs ${getCategoryColor(plan.category)}`}>
-                              {getCategoryName(plan.category)}
-                            </span>
-                          </div>
-                          <h4 className="font-medium text-white">{plan.name}</h4>
-                          <p className="text-xl font-bold text-haven-red">{plan.price} Bs</p>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(plan)} className="border-white/10">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDeletePlan(plan.id)} className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {sessionPlans.map(renderPlanCard)}
               </div>
             </CardContent>
           </Card>
@@ -248,53 +256,7 @@ const SubscriptionPlans = () => {
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-white mb-4">Planes Especiales</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {specialPlans.map((plan) => (
-                  <Card key={plan.id} className="haven-card">
-                    <CardContent className="p-4">
-                      {editingPlan?.id === plan.id ? (
-                        <div className="space-y-3">
-                          <Input
-                            value={editingPlan.name}
-                            onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <Input
-                            type="number"
-                            value={editingPlan.price}
-                            onChange={(e) => setEditingPlan({...editingPlan, price: Number(e.target.value)})}
-                            className="bg-haven-dark border-white/10"
-                          />
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700">
-                              <Save className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(null)} className="border-white/10">
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className={`px-2 py-1 rounded-full text-xs ${getCategoryColor(plan.category)}`}>
-                              {getCategoryName(plan.category)}
-                            </span>
-                          </div>
-                          <h4 className="font-medium text-white">{plan.name}</h4>
-                          <p className="text-xl font-bold text-haven-red">{plan.price} Bs</p>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => setEditingPlan(plan)} className="border-white/10">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDeletePlan(plan.id)} className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {specialPlans.map(renderPlanCard)}
               </div>
             </CardContent>
           </Card>
