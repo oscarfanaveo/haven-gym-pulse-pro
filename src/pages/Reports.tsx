@@ -8,6 +8,7 @@ import TopSellingProducts from "@/components/reports/TopSellingProducts";
 import MembershipAnalysisPlaceholder from "@/components/reports/MembershipAnalysisPlaceholder";
 import RetentionRate from "@/components/reports/RetentionRate";
 import ChurnAnalysis from "@/components/reports/ChurnAnalysis";
+import EntryTimeAnalysis from "@/components/reports/EntryTimeAnalysis";
 import ReportsHeader from "@/components/reports/ReportsHeader";
 
 const Reports = () => {
@@ -23,10 +24,11 @@ const Reports = () => {
       />
 
       <Tabs defaultValue="financial" className="w-full">
-        <TabsList className="bg-haven-dark grid grid-cols-3 w-full max-w-md">
+        <TabsList className="bg-haven-dark grid grid-cols-4 w-full max-w-2xl">
           <TabsTrigger value="financial" className="data-[state=active]:bg-haven-red">Financiero</TabsTrigger>
           <TabsTrigger value="membership" className="data-[state=active]:bg-haven-red">Membresías</TabsTrigger>
           <TabsTrigger value="retention" className="data-[state=active]:bg-haven-red">Retención</TabsTrigger>
+          <TabsTrigger value="entry-times" className="data-[state=active]:bg-haven-red">Horarios</TabsTrigger>
         </TabsList>
         
         <TabsContent value="financial" className="mt-4">
@@ -50,6 +52,10 @@ const Reports = () => {
             <RetentionRate />
             <ChurnAnalysis />
           </div>
+        </TabsContent>
+
+        <TabsContent value="entry-times" className="mt-4">
+          <EntryTimeAnalysis />
         </TabsContent>
       </Tabs>
     </div>

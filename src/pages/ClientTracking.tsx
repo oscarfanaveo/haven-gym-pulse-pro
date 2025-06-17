@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,8 @@ const clientsData = [
     price: 135,
     entradas: 31,
     codigo: "123456",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "2",
@@ -45,7 +47,8 @@ const clientsData = [
     price: 200,
     entradas: 90,
     codigo: "789012",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "3",
@@ -57,7 +60,8 @@ const clientsData = [
     price: 160,
     entradas: 31,
     codigo: "345678",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "4",
@@ -69,7 +73,8 @@ const clientsData = [
     price: 135,
     entradas: 15,
     codigo: "901234",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "5",
@@ -81,7 +86,8 @@ const clientsData = [
     price: 200,
     entradas: 90,
     codigo: "567890",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "6",
@@ -93,7 +99,8 @@ const clientsData = [
     price: 160,
     entradas: 31,
     codigo: "234567",
-    horario: "mañanas"
+    horario: "mañanas",
+    lastEntry: null as string | null
   },
   {
     id: "7",
@@ -105,7 +112,8 @@ const clientsData = [
     price: 120,
     entradas: 12,
     codigo: "678901",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "8",
@@ -117,7 +125,8 @@ const clientsData = [
     price: 160,
     entradas: 28,
     codigo: "112233",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   },
   {
     id: "9",
@@ -129,9 +138,19 @@ const clientsData = [
     price: 200,
     entradas: 85,
     codigo: "445566",
-    horario: "completo"
+    horario: "completo",
+    lastEntry: null as string | null
   }
 ];
+
+// Entry history interface
+interface EntryRecord {
+  id: string;
+  clientId: string;
+  clientName: string;
+  entryTime: string;
+  date: string;
+}
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
@@ -148,9 +167,15 @@ const ClientTracking = () => {
   const [openEntryDialog, setOpenEntryDialog] = useState(false);
   const [clientCode, setClientCode] = useState("");
   const [clients, setClients] = useState(clientsData);
+  const [entryHistory, setEntryHistory] = useState<EntryRecord[]>([]);
   const { toast } = useToast();
 
   const activeClients = clients.filter(client => client.status === "Activo");
+  const todayEntries = entryHistory.filter(entry => {
+    const today = new Date().toDateString();
+    const entryDate = new Date(entry.date).toDateString();
+    return today === entryDate;
+  });
 
   const handleEntry = () => {
     if (clientCode.length !== 6) {
@@ -215,10 +240,31 @@ const ClientTracking = () => {
       return;
     }
 
+    // Record entry time
+    const now = new Date();
+    const entryTime = now.toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+    const entryDate = now.toISOString();
+
+    // Create entry record
+    const newEntry: EntryRecord = {
+      id: Date.now().toString(),
+      clientId: client.id,
+      clientName: client.name,
+      entryTime: entryTime,
+      date: entryDate
+    };
+
+    // Update entry history
+    setEntryHistory(prev => [...prev, newEntry]);
+
     // Process successful entry
     const updatedClients = clients.map(c => 
       c.codigo === clientCode 
-        ? { ...c, entradas: c.entradas - 1 }
+        ? { ...c, entradas: c.entradas - 1, lastEntry: entryTime }
         : c
     );
     
@@ -226,10 +272,11 @@ const ClientTracking = () => {
     
     toast({
       title: `Bienvenido ${client.name}`,
-      description: `Entradas restantes: ${client.entradas - 1}`,
+      description: `Entrada registrada a las ${entryTime}. Entradas restantes: ${client.entradas - 1}`,
       variant: "default",
     });
 
+    console.log('Nueva entrada registrada:', newEntry);
     setOpenEntryDialog(false);
     setClientCode("");
   };
@@ -271,7 +318,7 @@ const ClientTracking = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-white/60">Ingresos Hoy</p>
-                <p className="text-2xl font-bold">24</p>
+                <p className="text-2xl font-bold">{todayEntries.length}</p>
                 <p className="text-xs text-blue-500">Registros del día</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -309,6 +356,7 @@ const ClientTracking = () => {
                     <TableHead>Plan</TableHead>
                     <TableHead>Código</TableHead>
                     <TableHead>Entradas Restantes</TableHead>
+                    <TableHead>Última Entrada</TableHead>
                     <TableHead>Horario</TableHead>
                     <TableHead>Vencimiento</TableHead>
                     <TableHead>Estado</TableHead>
@@ -328,6 +376,15 @@ const ClientTracking = () => {
                         }`}>
                           {client.entradas}
                         </span>
+                      </TableCell>
+                      <TableCell>
+                        {client.lastEntry ? (
+                          <span className="text-blue-400 font-mono text-sm">
+                            {client.lastEntry}
+                          </span>
+                        ) : (
+                          <span className="text-white/40 text-sm">Sin registros</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs ${
@@ -350,6 +407,38 @@ const ClientTracking = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Today's Entry History */}
+      {todayEntries.length > 0 && (
+        <Card className="haven-card">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Clock className="h-5 w-5 text-blue-500" />
+                Ingresos de Hoy
+              </h3>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/10 hover:bg-transparent">
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Hora de Entrada</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {todayEntries.map((entry) => (
+                      <TableRow key={entry.id} className="border-white/10 hover:bg-haven-dark/70">
+                        <TableCell className="font-medium">{entry.clientName}</TableCell>
+                        <TableCell className="font-mono text-blue-400">{entry.entryTime}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Dialog open={openEntryDialog} onOpenChange={setOpenEntryDialog}>
         <DialogContent className="bg-haven-gray text-white border-white/10 max-w-md">
