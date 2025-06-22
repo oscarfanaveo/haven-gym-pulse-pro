@@ -1,6 +1,6 @@
 
 import { 
-  Users, ShoppingBag, Dumbbell, TrendingUp, 
+  Users, ShoppingBag, TrendingUp, 
   DollarSign, Calendar, Clock, BarChart 
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,8 +81,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="haven-card lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6">
+        <Card className="haven-card">
           <CardHeader className="pb-2">
             <CardTitle>Resumen de Ingresos</CardTitle>
             <CardDescription>Desglose de ingresos mensuales por suscripción</CardDescription>
@@ -91,49 +91,6 @@ const Dashboard = () => {
             <div className="text-center text-white/60">
               <BarChart size={64} className="mx-auto mb-4 text-haven-red" />
               <p>La visualización del gráfico de ingresos se mostrará aquí</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="haven-card">
-          <CardHeader className="pb-2">
-            <CardTitle>Próximas Clases</CardTitle>
-            <CardDescription>Eventos especiales de hoy</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-12 h-12 rounded-lg bg-haven-red flex items-center justify-center">
-                  <Calendar size={20} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-medium">Clase de Spinning</p>
-                  <p className="text-sm text-white/60">10:00 AM - 11:00 AM</p>
-                  <p className="text-xs text-white/60 mt-1">12 participantes</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-12 h-12 rounded-lg bg-haven-red flex items-center justify-center">
-                  <Dumbbell size={20} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-medium">Entrenamiento en Grupo</p>
-                  <p className="text-sm text-white/60">2:00 PM - 3:30 PM</p>
-                  <p className="text-xs text-white/60 mt-1">8 participantes</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-12 h-12 rounded-lg bg-haven-red flex items-center justify-center">
-                  <Calendar size={20} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-medium">Clase de Baile</p>
-                  <p className="text-sm text-white/60">6:00 PM - 7:00 PM</p>
-                  <p className="text-xs text-white/60 mt-1">15 participantes</p>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
