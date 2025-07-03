@@ -1,19 +1,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Session, User } from '@supabase/supabase-js';
 
-interface UserProfile {
+interface User {
   id: string;
-  full_name: string | null;
+  username: string;
   role: 'admin' | 'recepcion' | 'trainer';
+  fullName: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  profile: UserProfile | null;
-  session: Session | null;
-  login: (email: string, password: string) => Promise<{ error: string | null }>;
+  login: (username: string, password: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   hasPermission: (page: string) => boolean;
@@ -31,10 +28,30 @@ export const useAuth = () => {
   return context;
 };
 
+// Usuarios hardcodeados
+const HARDCODED_USERS: User[] = [
+  {
+    id: '1',
+    username: 'admin',
+    role: 'admin',
+    fullName: 'Administrador'
+  },
+  {
+    id: '2',
+    username: 'Rolo',
+    role: 'recepcion',
+    fullName: 'Rolo García'
+  }
+];
+
+// Contraseñas hardcodeadas
+const USER_PASSWORDS: { [key: string]: string } = {
+  'admin': '205531',
+  'Rolo': 'date123'
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Permisos por rol
@@ -52,67 +69,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
+    // Verificar si hay un usuario guardado en localStorage
+    const savedUser = localStorage.getItem('haven-gym-user');
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('haven-gym-user');
       }
-    );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    setLoading(false);
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
+      // Verificar credenciales
+      const foundUser = HARDCODED_USERS.find(u => u.username === username);
+      
+      if (!foundUser) {
+        return { error: 'Usuario no encontrado' };
       }
 
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        return { error: error.message };
+      if (USER_PASSWORDS[username] !== password) {
+        return { error: 'Contraseña incorrecta' };
       }
+
+      // Guardar usuario en localStorage y estado
+      setUser(foundUser);
+      localStorage.setItem('haven-gym-user', JSON.stringify(foundUser));
 
       return { error: null };
     } catch (error) {
@@ -121,24 +107,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
+    localStorage.removeItem('haven-gym-user');
   };
 
   const hasPermission = (page: string): boolean => {
-    if (!profile) return false;
-    const permissions = ROLE_PERMISSIONS[profile.role] || [];
+    if (!user) return false;
+    const permissions = ROLE_PERMISSIONS[user.role] || [];
     return permissions.includes(page);
   };
 
   const getDefaultRoute = (): string => {
-    if (!profile) return '/';
-    return DEFAULT_ROUTES[profile.role] || '/';
+    if (!user) return '/';
+    return DEFAULT_ROUTES[user.role] || '/';
   };
 
   const value = {
     user,
-    profile,
-    session,
     login,
     logout,
     isAuthenticated: !!user,

@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
-  UserPlus, Pencil, Trash2, UserCog, Loader2
+  UserPlus, Pencil, Trash2, UserCog
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,17 +30,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-interface UserProfile {
+interface User {
   id: string;
-  full_name: string | null;
+  username: string;
+  fullName: string;
   role: 'admin' | 'recepcion' | 'trainer';
 }
 
 interface FormData {
-  name: string;
-  email: string;
+  username: string;
+  fullName: string;
   role: 'admin' | 'recepcion' | 'trainer';
   password: string;
   confirmPassword: string;
@@ -50,47 +50,32 @@ const Users = () => {
   const { toast } = useToast();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  // Usuarios hardcodeados para mostrar
+  const [users] = useState<User[]>([
+    {
+      id: '1',
+      username: 'admin',
+      fullName: 'Administrador',
+      role: 'admin'
+    },
+    {
+      id: '2',
+      username: 'Rolo',
+      fullName: 'Rolo García',
+      role: 'recepcion'
+    }
+  ]);
   
   // Estado para formulario
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
+    username: "",
+    fullName: "",
     role: "recepcion",
     password: "",
     confirmPassword: "",
   });
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('full_name');
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se pudieron cargar los usuarios."
-        });
-        return;
-      }
-
-      setUsers(data || []);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,8 +88,8 @@ const Users = () => {
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      email: "",
+      username: "",
+      fullName: "",
       role: "recepcion",
       password: "",
       confirmPassword: "",
@@ -112,130 +97,26 @@ const Users = () => {
   };
 
   const handleAddUser = async () => {
-    // Validación básica
-    if (!formData.name || !formData.email || !formData.password) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Por favor complete todos los campos requeridos."
-      });
-      return;
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Las contraseñas no coinciden."
-      });
-      return;
-    }
-
-    try {
-      // Create user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.name,
-          }
-        }
-      });
-
-      if (authError) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: authError.message
-        });
-        return;
-      }
-
-      if (authData.user) {
-        // Update the profile with the correct role
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ role: formData.role })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-        }
-      }
-
-      await fetchUsers();
-      resetForm();
-      setIsAddUserModalOpen(false);
-      
-      toast({
-        title: "Éxito",
-        description: "Usuario agregado correctamente."
-      });
-    } catch (error) {
-      console.error('Error creating user:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo crear el usuario."
-      });
-    }
+    toast({
+      variant: "destructive",
+      title: "Usuario Hardcodeado",
+      description: "En esta versión, los usuarios están hardcodeados. Use 'admin' o 'Rolo' para iniciar sesión."
+    });
   };
 
   const handleEditUser = async () => {
-    if (!selectedUser) return;
-    
-    // Validación básica
-    if (!formData.name) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Por favor complete el nombre."
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: formData.name,
-          role: formData.role
-        })
-        .eq('id', selectedUser.id);
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message
-        });
-        return;
-      }
-
-      await fetchUsers();
-      resetForm();
-      setIsEditUserModalOpen(false);
-      
-      toast({
-        title: "Éxito",
-        description: "Usuario actualizado correctamente."
-      });
-    } catch (error) {
-      console.error('Error updating user:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar el usuario."
-      });
-    }
+    toast({
+      variant: "destructive",
+      title: "Usuario Hardcodeado",
+      description: "En esta versión, los usuarios están hardcodeados y no se pueden editar."
+    });
   };
 
-  const openEditModal = (user: UserProfile) => {
+  const openEditModal = (user: User) => {
     setSelectedUser(user);
     setFormData({
-      name: user.full_name || "",
-      email: "",
+      username: user.username,
+      fullName: user.fullName,
       role: user.role,
       password: "",
       confirmPassword: "",
@@ -244,22 +125,11 @@ const Users = () => {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm("¿Está seguro que desea eliminar este usuario?")) {
-      return;
-    }
-
-    try {
-      // Note: We can't directly delete from auth.users via the client
-      // This would need to be handled through a server function
-      // For now, we'll just show a message
-      toast({
-        variant: "destructive",
-        title: "Función no disponible",
-        description: "La eliminación de usuarios debe ser manejada por un administrador del sistema."
-      });
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
+    toast({
+      variant: "destructive",
+      title: "Usuario Hardcodeado",
+      description: "En esta versión, los usuarios están hardcodeados y no se pueden eliminar."
+    });
   };
 
   const getRoleDisplayText = (role: string) => {
@@ -271,14 +141,6 @@ const Users = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-haven-red" />
-      </div>
-    );
-  }
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -288,7 +150,7 @@ const Users = () => {
             Gestión de Usuarios
           </h1>
           <p className="text-muted-foreground">
-            Administre los usuarios que tienen acceso al sistema
+            Usuarios hardcodeados del sistema
           </p>
         </div>
         <Dialog open={isAddUserModalOpen} onOpenChange={setIsAddUserModalOpen}>
@@ -302,29 +164,28 @@ const Users = () => {
             <DialogHeader>
               <DialogTitle>Añadir Nuevo Usuario</DialogTitle>
               <DialogDescription>
-                Complete el formulario para crear un nuevo usuario del sistema.
+                Nota: En esta versión los usuarios están hardcodeados.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <label htmlFor="name">Nombre Completo</label>
+                <label htmlFor="username">Nombre de Usuario</label>
                 <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleInputChange}
-                  placeholder="Nombre y apellido"
+                  placeholder="Nombre de usuario"
                 />
               </div>
               <div className="grid gap-2">
-                <label htmlFor="email">Correo Electrónico</label>
+                <label htmlFor="fullName">Nombre Completo</label>
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="correo@ejemplo.com"
+                  placeholder="Nombre completo"
                 />
               </div>
               <div className="grid gap-2">
@@ -382,18 +243,28 @@ const Users = () => {
             <DialogHeader>
               <DialogTitle>Editar Usuario</DialogTitle>
               <DialogDescription>
-                Modifique la información del usuario.
+                Nota: En esta versión los usuarios están hardcodeados.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <label htmlFor="edit-name">Nombre Completo</label>
+                <label htmlFor="edit-username">Nombre de Usuario</label>
                 <Input
-                  id="edit-name"
-                  name="name"
-                  value={formData.name}
+                  id="edit-username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleInputChange}
-                  placeholder="Nombre y apellido"
+                  placeholder="Nombre de usuario"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="edit-fullName">Nombre Completo</label>
+                <Input
+                  id="edit-fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  placeholder="Nombre completo"
                 />
               </div>
               <div className="grid gap-2">
@@ -429,6 +300,7 @@ const Users = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Usuario</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Rol</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
@@ -437,7 +309,8 @@ const Users = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.full_name || 'Sin nombre'}</TableCell>
+                <TableCell className="font-medium">{user.username}</TableCell>
+                <TableCell>{user.fullName}</TableCell>
                 <TableCell>{getRoleDisplayText(user.role)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
@@ -461,13 +334,6 @@ const Users = () => {
                 </TableCell>
               </TableRow>
             ))}
-            {users.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
-                  No hay usuarios para mostrar
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </div>

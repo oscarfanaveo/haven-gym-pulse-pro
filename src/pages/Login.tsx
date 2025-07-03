@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, getDefaultRoute, loading } = useAuth();
@@ -25,7 +25,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!username || !password) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -36,7 +36,7 @@ const Login = () => {
 
     setIsLoading(true);
     
-    const { error } = await login(email, password);
+    const { error } = await login(username, password);
     
     if (error) {
       toast({
@@ -76,15 +76,15 @@ const Login = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-white">
-                Correo Electrónico
+              <label htmlFor="username" className="text-sm font-medium text-white">
+                Usuario
               </label>
               <Input
-                id="email"
-                type="email"
-                placeholder="tu@correo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Nombre de usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="bg-haven-gray border-white/10 text-white"
                 disabled={isLoading}
               />
@@ -116,8 +116,8 @@ const Login = () => {
           <div className="mt-6 p-4 bg-haven-gray/50 rounded-lg">
             <p className="text-sm text-white/60 mb-2">Credenciales de prueba:</p>
             <p className="text-xs text-white/80">
-              <strong>Admin:</strong> admin@havengym.com / admin123<br/>
-              <strong>Recepción:</strong> recepcion@havengym.com / recepcion123
+              <strong>Admin:</strong> admin / 205531<br/>
+              <strong>Recepción:</strong> Rolo / date123
             </p>
           </div>
         </CardContent>
