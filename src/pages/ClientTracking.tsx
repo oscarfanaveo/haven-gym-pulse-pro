@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,129 +21,24 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-// Extended subscription data with new client tracking fields
-const clientsData = [
-  {
-    id: "1",
-    name: "Juan Pérez",
-    plan: "Básico",
-    startDate: "2025-05-15",
-    endDate: "2025-06-15",
-    status: "Activo",
-    price: 135,
-    entradas: 31,
-    codigo: "123456",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "2",
-    name: "Maria Garcia",
-    plan: "Premium",
-    startDate: "2025-05-10",
-    endDate: "2025-06-20",
-    status: "Activo",
-    price: 200,
-    entradas: 90,
-    codigo: "789012",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "3",
-    name: "Carlos Rodriguez",
-    plan: "Regular",
-    startDate: "2025-05-05",
-    endDate: "2025-06-25",
-    status: "Activo",
-    price: 160,
-    entradas: 31,
-    codigo: "345678",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "4",
-    name: "Ana Martinez",
-    plan: "Básico",
-    startDate: "2025-02-20",
-    endDate: "2025-03-20",
-    status: "Expirado",
-    price: 135,
-    entradas: 15,
-    codigo: "901234",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "5",
-    name: "Luis Fernandez",
-    plan: "Premium",
-    startDate: "2025-05-01",
-    endDate: "2025-07-01",
-    status: "Activo",
-    price: 200,
-    entradas: 90,
-    codigo: "567890",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "6",
-    name: "Sofia Morales",
-    plan: "Mensual, solo mañanas",
-    startDate: "2025-05-15",
-    endDate: "2025-06-30",
-    status: "Activo",
-    price: 160,
-    entradas: 31,
-    codigo: "234567",
-    horario: "mañanas",
-    lastEntry: null as string | null
-  },
-  {
-    id: "7",
-    name: "Diego Sanchez",
-    plan: "Mensual, día por medio",
-    startDate: "2025-05-20",
-    endDate: "2025-07-10",
-    status: "Activo",
-    price: 120,
-    entradas: 12,
-    codigo: "678901",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "8",
-    name: "Laura Gutierrez",
-    plan: "Regular",
-    startDate: "2025-05-12",
-    endDate: "2025-06-12",
-    status: "Activo",
-    price: 160,
-    entradas: 28,
-    codigo: "112233",
-    horario: "completo",
-    lastEntry: null as string | null
-  },
-  {
-    id: "9",
-    name: "Roberto Silva",
-    plan: "Premium",
-    startDate: "2025-05-18",
-    endDate: "2025-07-05",
-    status: "Activo",
-    price: 200,
-    entradas: 85,
-    codigo: "445566",
-    horario: "completo",
-    lastEntry: null as string | null
-  }
-];
+interface Client {
+  id: number;
+  cliente_id: number;
+  name: string;
+  plan: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  price: number;
+  entradas: number;
+  codigo: string;
+  horario: string;
+  lastEntry: string | null;
+  suscripcion_id: number;
+}
 
-// Entry history interface
 interface EntryRecord {
   id: string;
   clientId: string;
@@ -166,9 +61,78 @@ const getStatusBadgeClass = (status: string) => {
 const ClientTracking = () => {
   const [openEntryDialog, setOpenEntryDialog] = useState(false);
   const [clientCode, setClientCode] = useState("");
-  const [clients, setClients] = useState(clientsData);
+  const [clients, setClients] = useState<Client[]>([]);
   const [entryHistory, setEntryHistory] = useState<EntryRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const fetchClientsData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('suscripciones')
+        .select(`
+          id,
+          cliente_id,
+          fecha_inicio,
+          fecha_fin,
+          estado,
+          clientes (
+            id,
+            nombre,
+            apellido,
+            codigo
+          ),
+          planes (
+            id,
+            nombre,
+            precio,
+            entradas,
+            horario
+          )
+        `);
+
+      if (error) {
+        console.error('Error fetching clients:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los datos de clientes",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const formattedClients = data?.map(sub => ({
+        id: sub.id,
+        cliente_id: sub.cliente_id,
+        suscripcion_id: sub.id,
+        name: `${sub.clientes.nombre} ${sub.clientes.apellido}`,
+        plan: sub.planes.nombre,
+        startDate: sub.fecha_inicio,
+        endDate: sub.fecha_fin,
+        status: new Date(sub.fecha_fin) < new Date() ? 'Expirado' : sub.estado,
+        price: sub.planes.precio,
+        entradas: sub.planes.entradas,
+        codigo: sub.clientes.codigo,
+        horario: sub.planes.horario,
+        lastEntry: null
+      })) || [];
+
+      setClients(formattedClients);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Error al cargar los datos",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClientsData();
+  }, []);
 
   const activeClients = clients.filter(client => client.status === "Activo");
   const todayEntries = entryHistory.filter(entry => {
@@ -177,7 +141,7 @@ const ClientTracking = () => {
     return today === entryDate;
   });
 
-  const handleEntry = () => {
+  const handleEntry = async () => {
     if (clientCode.length !== 6) {
       toast({
         title: "Código inválido",
@@ -228,18 +192,6 @@ const ClientTracking = () => {
       }
     }
 
-    // Check if client has entries left
-    if (client.entradas <= 0) {
-      toast({
-        title: "Entradas agotadas",
-        description: `${client.name} ha agotado sus entradas del mes`,
-        variant: "destructive",
-      });
-      setOpenEntryDialog(false);
-      setClientCode("");
-      return;
-    }
-
     // Record entry time
     const now = new Date();
     const entryTime = now.toLocaleTimeString('es-ES', { 
@@ -249,37 +201,76 @@ const ClientTracking = () => {
     });
     const entryDate = now.toISOString();
 
-    // Create entry record
-    const newEntry: EntryRecord = {
-      id: Date.now().toString(),
-      clientId: client.id,
-      clientName: client.name,
-      entryTime: entryTime,
-      date: entryDate
-    };
+    try {
+      // Insert entry record into database
+      const { error } = await supabase
+        .from('registros_entrada')
+        .insert({
+          cliente_id: client.cliente_id,
+          suscripcion_id: client.suscripcion_id,
+          fecha_entrada: entryDate
+        });
 
-    // Update entry history
-    setEntryHistory(prev => [...prev, newEntry]);
+      if (error) {
+        console.error('Error recording entry:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo registrar la entrada",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // Process successful entry
-    const updatedClients = clients.map(c => 
-      c.codigo === clientCode 
-        ? { ...c, entradas: c.entradas - 1, lastEntry: entryTime }
-        : c
-    );
-    
-    setClients(updatedClients);
-    
-    toast({
-      title: `Bienvenido ${client.name}`,
-      description: `Entrada registrada a las ${entryTime}. Entradas restantes: ${client.entradas - 1}`,
-      variant: "default",
-    });
+      // Create entry record for local state
+      const newEntry: EntryRecord = {
+        id: Date.now().toString(),
+        clientId: client.id.toString(),
+        clientName: client.name,
+        entryTime: entryTime,
+        date: entryDate
+      };
 
-    console.log('Nueva entrada registrada:', newEntry);
+      // Update entry history
+      setEntryHistory(prev => [...prev, newEntry]);
+
+      // Update client's last entry time
+      const updatedClients = clients.map(c => 
+        c.codigo === clientCode 
+          ? { ...c, lastEntry: entryTime }
+          : c
+      );
+      
+      setClients(updatedClients);
+      
+      toast({
+        title: `Bienvenido ${client.name}`,
+        description: `Entrada registrada a las ${entryTime}`,
+        variant: "default",
+      });
+
+      console.log('Nueva entrada registrada:', newEntry);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Error al registrar la entrada",
+        variant: "destructive",
+      });
+    }
+
     setOpenEntryDialog(false);
     setClientCode("");
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-white">Cargando datos...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -333,7 +324,7 @@ const ClientTracking = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-white/60">Horario Restringido</p>
-                <p className="text-2xl font-bold">1</p>
+                <p className="text-2xl font-bold">{activeClients.filter(c => c.horario === 'mañanas').length}</p>
                 <p className="text-xs text-yellow-500">Solo mañanas</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
@@ -355,7 +346,7 @@ const ClientTracking = () => {
                     <TableHead>Cliente</TableHead>
                     <TableHead>Plan</TableHead>
                     <TableHead>Código</TableHead>
-                    <TableHead>Entradas Restantes</TableHead>
+                    <TableHead>Entradas Disponibles</TableHead>
                     <TableHead>Última Entrada</TableHead>
                     <TableHead>Horario</TableHead>
                     <TableHead>Vencimiento</TableHead>

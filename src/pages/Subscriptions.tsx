@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User, Plus, Search, Filter, MoreHorizontal, Calendar,
   Trash2, Edit, Clock, UsersRound
@@ -46,94 +46,27 @@ import {
 import Invoice from "@/components/Invoice";
 import SubscriptionRenewal from "@/components/SubscriptionRenewal";
 import PlanSelector from "@/components/PlanSelector";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Datos de ejemplo para suscripciones
-const subscriptionsData = [
-  {
-    id: "1",
-    name: "Juan Pérez",
-    plan: "Básico",
-    startDate: "2025-03-15",
-    endDate: "2025-04-15",
-    status: "Activo",
-    price: 135,
-    entradas: 31,
-    codigo: "123456",
-    horario: "completo"
-  },
-  {
-    id: "2",
-    name: "Maria Garcia",
-    plan: "Premium",
-    startDate: "2025-03-10",
-    endDate: "2025-04-10",
-    status: "Activo",
-    price: 200,
-    entradas: 90,
-    codigo: "789012",
-    horario: "completo"
-  },
-  {
-    id: "3",
-    name: "Carlos Rodriguez",
-    plan: "Regular",
-    startDate: "2025-03-05",
-    endDate: "2025-04-05",
-    status: "Activo",
-    price: 160,
-    entradas: 31,
-    codigo: "345678",
-    horario: "completo"
-  },
-  {
-    id: "4",
-    name: "Ana Martinez",
-    plan: "Básico",
-    startDate: "2025-02-20",
-    endDate: "2025-03-20",
-    status: "Expirado",
-    price: 135,
-    entradas: 15,
-    codigo: "901234",
-    horario: "completo"
-  },
-  {
-    id: "5",
-    name: "Luis Fernandez",
-    plan: "Premium",
-    startDate: "2025-03-01",
-    endDate: "2025-04-01",
-    status: "Activo",
-    price: 200,
-    entradas: 90,
-    codigo: "567890",
-    horario: "completo"
-  },
-  {
-    id: "6",
-    name: "Sofia Morales",
-    plan: "Regular",
-    startDate: "2025-02-15",
-    endDate: "2025-03-15",
-    status: "Expirado",
-    price: 160,
-    entradas: 31,
-    codigo: "234567",
-    horario: "completo"
-  },
-  {
-    id: "7",
-    name: "Diego Sanchez",
-    plan: "Temporal",
-    startDate: "2025-03-15",
-    endDate: "2025-03-17",
-    status: "Activo",
-    price: 50,
-    entradas: 90,
-    codigo: "678901",
-    horario: "completo"
-  },
-];
+interface Subscription {
+  id: number;
+  name: string;
+  plan: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  price: number;
+  cliente_id: number;
+}
+
+interface Plan {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  categoria: string;
+}
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
@@ -163,66 +96,216 @@ const getPlanBadgeClass = (plan: string) => {
   }
 };
 
-// Function to generate client tracking data based on plan
-const generateClientData = (planName: string) => {
-  let entradas = 31; // Default for Mensual normal and solo mañanas
-  let horario = "completo"; // Default for most plans
-  
-  // Set entradas based on plan type
-  if (planName.toLowerCase().includes("premium") || planName.toLowerCase().includes("ilimitado") || planName.toLowerCase().includes("temporal")) {
-    entradas = 90;
-  } else if (planName.toLowerCase().includes("día por medio")) {
-    entradas = 12;
-  }
-  
-  // Set horario for morning-only plans
-  if (planName.toLowerCase().includes("solo mañanas")) {
-    horario = "mañanas";
-  }
-  
-  // Generate unique 6-digit code
-  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-  
-  return { entradas, codigo, horario };
-};
-
-const activeSubscriptions = subscriptionsData.filter(sub => sub.status === "Activo").length;
-const expiredSubscriptions = subscriptionsData.filter(sub => sub.status === "Expirado").length;
-const plans = [
-  { name: "Básico", price: 135, description: "Acceso 3 veces por semana" },
-  { name: "Regular", price: 160, description: "Acceso completo al gimnasio y máquinas" },
-  { name: "Premium", price: 200, description: "Acceso completo más clases complementarias" },
-  { name: "Temporal", price: "Variable", description: "Eventos especiales y clases" }
-];
-
 const Subscriptions = () => {
   const [openNewSubscription, setOpenNewSubscription] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [showInvoice, setShowInvoice] = useState(false);
   const [subscriptionPrice, setSubscriptionPrice] = useState(0);
   const [planName, setPlanName] = useState("");
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const handleAddMember = () => {
-    // Generate client tracking data
-    const clientData = generateClientData(planName);
-    
-    console.log("Nuevo cliente creado con:", {
-      nombre: customerName,
-      plan: planName,
-      entradas: clientData.entradas,
-      codigo: clientData.codigo,
-      horario: clientData.horario
-    });
-    
-    setShowInvoice(true);
-    // Don't close modal yet - we'll close it after invoice is viewed
+  const fetchSubscriptionsData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('suscripciones')
+        .select(`
+          id,
+          fecha_inicio,
+          fecha_fin,
+          estado,
+          cliente_id,
+          clientes (
+            id,
+            nombre,
+            apellido
+          ),
+          planes (
+            id,
+            nombre,
+            precio
+          )
+        `);
+
+      if (error) {
+        console.error('Error fetching subscriptions:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar las suscripciones",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const formattedSubscriptions = data?.map(sub => ({
+        id: sub.id,
+        cliente_id: sub.cliente_id,
+        name: `${sub.clientes.nombre} ${sub.clientes.apellido}`,
+        plan: sub.planes.nombre,
+        startDate: sub.fecha_inicio,
+        endDate: sub.fecha_fin,
+        status: new Date(sub.fecha_fin) < new Date() ? 'Expirado' : sub.estado,
+        price: sub.planes.precio,
+      })) || [];
+
+      setSubscriptions(formattedSubscriptions);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Error al cargar las suscripciones",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchPlansData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('planes')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching plans:', error);
+        return;
+      }
+
+      const formattedPlans = data?.map(plan => ({
+        id: plan.id,
+        name: plan.nombre,
+        price: plan.precio,
+        description: plan.descripcion || "Plan de suscripción",
+        categoria: plan.categoria
+      })) || [];
+
+      setPlans(formattedPlans);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([fetchSubscriptionsData(), fetchPlansData()]);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const activeSubscriptions = subscriptions.filter(sub => sub.status === "Activo").length;
+  const expiredSubscriptions = subscriptions.filter(sub => sub.status === "Expirado").length;
+
+  const handleAddMember = async () => {
+    if (!customerName || !selectedPlan || !startDate) {
+      toast({
+        title: "Error",
+        description: "Por favor complete todos los campos obligatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // First, create the client
+      const nameParts = customerName.trim().split(' ');
+      const nombre = nameParts[0];
+      const apellido = nameParts.slice(1).join(' ') || 'Sin apellido';
+      
+      // Generate unique 6-digit code
+      const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+      const { data: clientData, error: clientError } = await supabase
+        .from('clientes')
+        .insert({
+          nombre,
+          apellido,
+          correo: customerEmail || null,
+          telefono: customerPhone || null,
+          codigo,
+          activo: true
+        })
+        .select()
+        .single();
+
+      if (clientError) {
+        console.error('Error creating client:', clientError);
+        toast({
+          title: "Error",
+          description: "No se pudo crear el cliente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Find the selected plan
+      const selectedPlanData = plans.find(p => p.name === planName);
+      if (!selectedPlanData) {
+        toast({
+          title: "Error",
+          description: "Plan seleccionado no válido",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Calculate end date (assuming monthly plans)
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      // Create the subscription
+      const { error: subscriptionError } = await supabase
+        .from('suscripciones')
+        .insert({
+          cliente_id: clientData.id,
+          plan_id: selectedPlanData.id,
+          fecha_inicio: startDate,
+          fecha_fin: endDate.toISOString().split('T')[0],
+          estado: 'Activo'
+        });
+
+      if (subscriptionError) {
+        console.error('Error creating subscription:', subscriptionError);
+        toast({
+          title: "Error",
+          description: "No se pudo crear la suscripción",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Éxito",
+        description: `Cliente ${customerName} creado exitosamente con código ${codigo}`,
+        variant: "default",
+      });
+
+      // Refresh data
+      await fetchSubscriptionsData();
+      
+      // Show invoice
+      setShowInvoice(true);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Error al crear el cliente",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePlanChange = (name: string, price: number) => {
     setPlanName(name);
     setSubscriptionPrice(price);
-    setSelectedPlan("custom"); // Set a value to enable the button
+    setSelectedPlan("custom");
   };
 
   const handleCloseInvoice = () => {
@@ -230,10 +313,23 @@ const Subscriptions = () => {
     setOpenNewSubscription(false);
     // Reset form
     setCustomerName("");
+    setCustomerEmail("");
+    setCustomerPhone("");
+    setStartDate("");
     setSelectedPlan("");
     setPlanName("");
     setSubscriptionPrice(0);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-white">Cargando datos...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -258,7 +354,7 @@ const Subscriptions = () => {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="name" className="text-right">
-                  Nombre
+                  Nombre *
                 </label>
                 <Input
                   id="name"
@@ -277,6 +373,8 @@ const Subscriptions = () => {
                   type="email"
                   placeholder="Dirección de correo"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -287,11 +385,13 @@ const Subscriptions = () => {
                   id="phone"
                   placeholder="Número de teléfono"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="plan" className="text-right">
-                  Plan
+                  Plan *
                 </label>
                 <div className="col-span-3">
                   <PlanSelector onPlanChange={handlePlanChange} />
@@ -304,12 +404,14 @@ const Subscriptions = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="startDate" className="text-right">
-                  Fecha Inicio
+                  Fecha Inicio *
                 </label>
                 <Input
                   id="startDate"
                   type="date"
                   className="col-span-3 bg-haven-dark border-white/10"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
             </div>
@@ -320,7 +422,7 @@ const Subscriptions = () => {
               <Button 
                 className="bg-haven-red hover:bg-haven-red/90"
                 onClick={handleAddMember}
-                disabled={!selectedPlan || !customerName}
+                disabled={!selectedPlan || !customerName || !startDate}
               >
                 Añadir Miembro
               </Button>
@@ -365,7 +467,14 @@ const Subscriptions = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-white/60">Próximas Renovaciones</p>
-                <p className="text-2xl font-bold">5</p>
+                <p className="text-2xl font-bold">
+                  {subscriptions.filter(sub => {
+                    const endDate = new Date(sub.endDate);
+                    const nextWeek = new Date();
+                    nextWeek.setDate(nextWeek.getDate() + 7);
+                    return endDate <= nextWeek && endDate > new Date();
+                  }).length}
+                </p>
                 <p className="text-xs text-blue-500">Para esta semana</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -426,7 +535,7 @@ const Subscriptions = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {subscriptionsData.map((subscription) => (
+                    {subscriptions.map((subscription) => (
                       <TableRow key={subscription.id} className="border-white/10 hover:bg-haven-dark/70">
                         <TableCell className="font-medium">{subscription.name}</TableCell>
                         <TableCell>
@@ -475,19 +584,19 @@ const Subscriptions = () => {
           </Card>
         </TabsContent>
         <TabsContent value="plans" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan) => (
-              <Card key={plan.name} className="haven-card">
+              <Card key={plan.id} className="haven-card">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold">{plan.name}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs ${getPlanBadgeClass(plan.name)}`}>
-                        {plan.name}
+                        {plan.categoria}
                       </span>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-2xl font-bold">{plan.price} {typeof plan.price === 'number' ? 'Bs' : ''}</p>
+                      <p className="text-2xl font-bold">{plan.price} Bs</p>
                       <p className="text-sm text-white/60">{plan.description}</p>
                     </div>
                     <Button className="w-full bg-haven-red hover:bg-haven-red/90">
