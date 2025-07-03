@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -45,7 +45,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-haven-red to-rose-600" />
           <div className="hidden md:block">
-            <p className="text-sm font-medium">{user?.username}</p>
+            <p className="text-sm font-medium">{profile?.full_name || user?.email}</p>
             <p className="text-xs text-white/60">Haven Gym</p>
           </div>
           <Button

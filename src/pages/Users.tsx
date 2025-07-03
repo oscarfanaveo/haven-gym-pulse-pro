@@ -38,6 +38,14 @@ interface UserProfile {
   role: 'admin' | 'recepcion' | 'trainer';
 }
 
+interface FormData {
+  name: string;
+  email: string;
+  role: 'admin' | 'recepcion' | 'trainer';
+  password: string;
+  confirmPassword: string;
+}
+
 const Users = () => {
   const { toast } = useToast();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
@@ -47,10 +55,10 @@ const Users = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   
   // Estado para formulario
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
-    role: "recepcion" as const,
+    role: "recepcion",
     password: "",
     confirmPassword: "",
   });
