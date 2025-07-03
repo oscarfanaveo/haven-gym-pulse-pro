@@ -1,24 +1,31 @@
 
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation, Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, hasPermission, getDefaultRoute } = useAuth();
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { isAuthenticated, loading, hasPermission } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-haven-dark flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-haven-red" />
+      </div>
+    );
   }
 
-  // Verificar si el usuario tiene permiso para acceder a esta ruta
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Check if user has permission to access this route
   if (!hasPermission(location.pathname)) {
-    // Redirigir a la ruta por defecto del rol en lugar de la raíz
-    return <Navigate to={getDefaultRoute()} replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
