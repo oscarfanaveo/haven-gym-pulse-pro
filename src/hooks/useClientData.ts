@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Client {
   id: number;
@@ -32,34 +33,17 @@ export const useClientData = () => {
   const [entryHistory, setEntryHistory] = useState<EntryRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   const fetchClientsData = async () => {
+    if (!isAuthenticated) {
+      console.log('🔒 Usuario no autenticado, esperando...');
+      setLoading(false);
+      return;
+    }
+
     try {
       console.log('🔍 Iniciando consulta de clientes...');
-      
-      // Verificar si el usuario está autenticado
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.log('👤 Usuario autenticado:', user?.id, user?.email);
-      
-      if (authError) {
-        console.error('❌ Error de autenticación:', authError);
-        toast({
-          title: "Error de autenticación",
-          description: "No se pudo verificar la autenticación del usuario",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!user) {
-        console.log('⚠️ Usuario no autenticado');
-        toast({
-          title: "No autenticado",
-          description: "Debe iniciar sesión para ver los datos",
-          variant: "destructive",
-        });
-        return;
-      }
 
       const { data, error } = await supabase
         .from('suscripciones')
@@ -149,9 +133,17 @@ export const useClientData = () => {
   };
 
   useEffect(() => {
-    console.log('🚀 Iniciando useClientData...');
-    fetchClientsData();
-  }, []);
+    console.log('🚀 Iniciando useClientData...', { isAuthenticated, authLoading });
+    
+    if (!authLoading) {
+      if (isAuthenticated) {
+        fetchClientsData();
+      } else {
+        setLoading(false);
+        setClients([]);
+      }
+    }
+  }, [isAuthenticated, authLoading]);
 
   const updateClients = (updatedClients: Client[]) => {
     console.log('🔄 Actualizando clientes:', updatedClients);
