@@ -113,6 +113,32 @@ const Subscriptions = () => {
 
   const fetchSubscriptionsData = async () => {
     try {
+      console.log('🔍 [Subscriptions] Iniciando consulta de suscripciones...');
+      
+      // Verificar autenticación
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('👤 [Subscriptions] Usuario autenticado:', user?.id, user?.email);
+      
+      if (authError) {
+        console.error('❌ [Subscriptions] Error de autenticación:', authError);
+        toast({
+          title: "Error de autenticación",
+          description: "No se pudo verificar la autenticación del usuario",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!user) {
+        console.log('⚠️ [Subscriptions] Usuario no autenticado');
+        toast({
+          title: "No autenticado",
+          description: "Debe iniciar sesión para ver los datos",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase
         .from('suscripciones')
         .select(`
@@ -133,13 +159,27 @@ const Subscriptions = () => {
           )
         `);
 
+      console.log('📊 [Subscriptions] Respuesta de la consulta:', { data, error });
+      console.log('📋 [Subscriptions] Cantidad de registros:', data?.length || 0);
+
       if (error) {
-        console.error('Error fetching subscriptions:', error);
+        console.error('❌ [Subscriptions] Error en la consulta:', error);
         toast({
           title: "Error",
-          description: "No se pudieron cargar las suscripciones",
+          description: `Error al cargar suscripciones: ${error.message}`,
           variant: "destructive",
         });
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.log('⚠️ [Subscriptions] No se encontraron suscripciones');
+        toast({
+          title: "Sin datos",
+          description: "No se encontraron suscripciones en la base de datos",
+          variant: "default",
+        });
+        setSubscriptions([]);
         return;
       }
 
@@ -154,9 +194,17 @@ const Subscriptions = () => {
         price: sub.planes.precio,
       })) || [];
 
+      console.log('✅ [Subscriptions] Suscripciones formateadas:', formattedSubscriptions);
       setSubscriptions(formattedSubscriptions);
+      
+      toast({
+        title: "Datos cargados",
+        description: `Se cargaron ${formattedSubscriptions.length} suscripciones exitosamente`,
+        variant: "default",
+      });
+
     } catch (error) {
-      console.error('Error:', error);
+      console.error('💥 [Subscriptions] Error general:', error);
       toast({
         title: "Error",
         description: "Error al cargar las suscripciones",
@@ -167,12 +215,16 @@ const Subscriptions = () => {
 
   const fetchPlansData = async () => {
     try {
+      console.log('🔍 [Plans] Iniciando consulta de planes...');
+      
       const { data, error } = await supabase
         .from('planes')
         .select('*');
 
+      console.log('📊 [Plans] Respuesta de la consulta:', { data, error });
+
       if (error) {
-        console.error('Error fetching plans:', error);
+        console.error('❌ [Plans] Error en la consulta:', error);
         return;
       }
 
@@ -184,13 +236,15 @@ const Subscriptions = () => {
         categoria: plan.categoria
       })) || [];
 
+      console.log('✅ [Plans] Planes formateados:', formattedPlans);
       setPlans(formattedPlans);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('💥 [Plans] Error general:', error);
     }
   };
 
   useEffect(() => {
+    console.log('🚀 [Subscriptions] Iniciando carga de datos...');
     const fetchData = async () => {
       setLoading(true);
       await Promise.all([fetchSubscriptionsData(), fetchPlansData()]);
@@ -333,6 +387,13 @@ const Subscriptions = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug info */}
+      <div className="bg-yellow-500/10 p-4 rounded-lg border border-yellow-500/20">
+        <p className="text-yellow-400 text-sm">
+          DEBUG: Suscripciones cargadas: {subscriptions.length} | Planes cargados: {plans.length}
+        </p>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold text-white">Suscripciones</h2>
