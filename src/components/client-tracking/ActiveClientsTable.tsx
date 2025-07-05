@@ -25,8 +25,17 @@ interface Client {
   suscripcion_id: number;
 }
 
+interface EntryRecord {
+  id: string;
+  clientId: string;
+  clientName: string;
+  entryTime: string;
+  date: string;
+}
+
 interface ActiveClientsTableProps {
   clients: Client[];
+  entryHistory?: EntryRecord[];
 }
 
 const getStatusBadgeClass = (status: string) => {
@@ -40,8 +49,23 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
-export const ActiveClientsTable = ({ clients }: ActiveClientsTableProps) => {
+export const ActiveClientsTable = ({ clients, entryHistory = [] }: ActiveClientsTableProps) => {
   const activeClients = clients.filter(client => client.status === "Activo");
+
+  // Get the latest entry for each client
+  const getLatestEntryForClient = (clientId: number) => {
+    const clientEntries = entryHistory.filter(entry => 
+      entry.clientId === clientId.toString()
+    );
+    if (clientEntries.length === 0) return null;
+    
+    // Sort by date and get the most recent
+    const latestEntry = clientEntries.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    )[0];
+    
+    return latestEntry.entryTime;
+  };
 
   return (
     <Card className="haven-card">
@@ -63,44 +87,48 @@ export const ActiveClientsTable = ({ clients }: ActiveClientsTableProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {activeClients.map((client) => (
-                  <TableRow key={client.id} className="border-white/10 hover:bg-haven-dark/70">
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell>{client.plan}</TableCell>
-                    <TableCell className="font-mono">{client.codigo}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        client.entradas > 10 ? 'bg-green-500/20 text-green-400' :
-                        client.entradas > 5 ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>
-                        {client.entradas}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {client.lastEntry ? (
-                        <span className="text-blue-400 font-mono text-sm">
-                          {client.lastEntry}
+                {activeClients.map((client) => {
+                  const latestEntry = getLatestEntryForClient(client.cliente_id);
+                  
+                  return (
+                    <TableRow key={client.id} className="border-white/10 hover:bg-haven-dark/70">
+                      <TableCell className="font-medium">{client.name}</TableCell>
+                      <TableCell>{client.plan}</TableCell>
+                      <TableCell className="font-mono">{client.codigo}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          client.entradas > 10 ? 'bg-green-500/20 text-green-400' :
+                          client.entradas > 5 ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-red-500/20 text-red-400'
+                        }`}>
+                          {client.entradas}
                         </span>
-                      ) : (
-                        <span className="text-white/40 text-sm">Sin registros</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        client.horario === 'mañanas' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {client.horario === 'mañanas' ? 'Solo mañanas' : 'Completo'}
-                      </span>
-                    </TableCell>
-                    <TableCell>{client.endDate}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(client.status)}`}>
-                        {client.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        {latestEntry ? (
+                          <span className="text-blue-400 font-mono text-sm">
+                            {latestEntry}
+                          </span>
+                        ) : (
+                          <span className="text-white/40 text-sm">Sin registros</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          client.horario === 'mañanas' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {client.horario === 'mañanas' ? 'Solo mañanas' : 'Completo'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{client.endDate}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(client.status)}`}>
+                          {client.status}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                )}
               </TableBody>
             </Table>
           </div>

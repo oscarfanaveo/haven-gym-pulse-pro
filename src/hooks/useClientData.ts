@@ -35,6 +35,61 @@ export const useClientData = () => {
   const { toast } = useToast();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
+  const fetchEntryHistory = async () => {
+    if (!isAuthenticated) {
+      console.log('🔒 Usuario no autenticado para cargar historial...');
+      return;
+    }
+
+    try {
+      console.log('📋 Cargando historial de entradas...');
+      
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      
+      const { data, error } = await supabase
+        .from('registros_entrada')
+        .select(`
+          id,
+          fecha_entrada,
+          cliente_id,
+          clientes (
+            nombre,
+            apellido
+          )
+        `)
+        .gte('fecha_entrada', `${todayStr}T00:00:00.000Z`)
+        .lte('fecha_entrada', `${todayStr}T23:59:59.999Z`)
+        .order('fecha_entrada', { ascending: false });
+
+      if (error) {
+        console.error('❌ Error cargando historial:', error);
+        return;
+      }
+
+      console.log('✅ Registros de entrada encontrados:', data?.length || 0);
+
+      const formattedEntries: EntryRecord[] = data?.map(entry => ({
+        id: entry.id.toString(),
+        clientId: entry.cliente_id.toString(),
+        clientName: `${entry.clientes.nombre} ${entry.clientes.apellido}`,
+        entryTime: new Date(entry.fecha_entrada).toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        date: entry.fecha_entrada
+      })) || [];
+
+      console.log('📊 Entradas formateadas:', formattedEntries);
+      setEntryHistory(formattedEntries);
+
+    } catch (error) {
+      console.error('💥 Error general cargando historial:', error);
+    }
+  };
+
   const fetchClientsData = async () => {
     if (!isAuthenticated) {
       console.log('🔒 Usuario no autenticado, esperando...');
@@ -120,6 +175,9 @@ export const useClientData = () => {
         variant: "default",
       });
 
+      // Load entry history after clients are loaded
+      await fetchEntryHistory();
+
     } catch (error) {
       console.error('💥 Error general:', error);
       toast({
@@ -141,6 +199,7 @@ export const useClientData = () => {
       } else {
         setLoading(false);
         setClients([]);
+        setEntryHistory([]);
       }
     }
   }, [isAuthenticated, authLoading]);
@@ -152,7 +211,7 @@ export const useClientData = () => {
 
   const addEntryRecord = (entry: EntryRecord) => {
     console.log('➕ Agregando registro de entrada:', entry);
-    setEntryHistory(prev => [...prev, entry]);
+    setEntryHistory(prev => [entry, ...prev]);
   };
 
   return {

@@ -45,7 +45,7 @@ const ClientTracking = () => {
 
       <StatsCards clients={clients} entryHistory={entryHistory} />
 
-      <ActiveClientsTable clients={clients} />
+      <ActiveClientsTable clients={clients} entryHistory={entryHistory} />
 
       <TodayEntryHistory entryHistory={entryHistory} />
 
