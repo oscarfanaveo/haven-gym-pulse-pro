@@ -115,7 +115,6 @@ const Subscriptions = () => {
     try {
       console.log('🔍 [Subscriptions] Iniciando consulta de suscripciones...');
       
-      // Verificar autenticación
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       console.log('👤 [Subscriptions] Usuario autenticado:', user?.id, user?.email);
       
@@ -258,48 +257,104 @@ const Subscriptions = () => {
   const expiredSubscriptions = subscriptions.filter(sub => sub.status === "Expirado").length;
 
   const handleAddMember = async () => {
-    if (!customerName || !selectedPlan || !startDate) {
+    console.log('🔄 [AddMember] Iniciando proceso de creación...');
+    console.log('📝 [AddMember] Datos del formulario:', {
+      customerName,
+      customerEmail,
+      customerPhone,
+      selectedPlan,
+      planName,
+      startDate,
+      subscriptionPrice
+    });
+
+    // Validación mejorada
+    if (!customerName.trim()) {
       toast({
-        title: "Error",
-        description: "Por favor complete todos los campos obligatorios",
+        title: "Error de validación",
+        description: "El nombre del cliente es obligatorio",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!planName) {
+      toast({
+        title: "Error de validación",
+        description: "Debe seleccionar un plan",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!startDate) {
+      toast({
+        title: "Error de validación",
+        description: "La fecha de inicio es obligatoria",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      // First, create the client
+      // Preparar datos del cliente
       const nameParts = customerName.trim().split(' ');
       const nombre = nameParts[0];
       const apellido = nameParts.slice(1).join(' ') || 'Sin apellido';
       
-      // Generate unique 6-digit code
+      // Generar código único de 6 dígitos
       const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-      const { data: clientData, error: clientError } = await supabase
+      console.log('👤 [AddMember] Creando cliente:', { nombre, apellido, codigo });
+
+      // Preparar datos del cliente - email puede ser null si está vacío
+      const clientData: any = {
+        nombre,
+        apellido,
+        codigo,
+        activo: true
+      };
+
+      // Solo agregar email si no está vacío
+      if (customerEmail && customerEmail.trim()) {
+        clientData.correo = customerEmail.trim();
+      }
+
+      // Solo agregar teléfono si no está vacío
+      if (customerPhone && customerPhone.trim()) {
+        clientData.telefono = customerPhone.trim();
+      }
+
+      // Crear el cliente
+      const { data: clientResult, error: clientError } = await supabase
         .from('clientes')
-        .insert({
-          nombre,
-          apellido,
-          correo: customerEmail || null,
-          telefono: customerPhone || null,
-          codigo,
-          activo: true
-        })
+        .insert(clientData)
         .select()
         .single();
 
       if (clientError) {
-        console.error('Error creating client:', clientError);
-        toast({
-          title: "Error",
-          description: "No se pudo crear el cliente",
-          variant: "destructive",
-        });
+        console.error('❌ [AddMember] Error al crear cliente:', clientError);
+        
+        // Manejar error de email duplicado
+        if (clientError.code === '23505' && clientError.message.includes('clientes_correo_key')) {
+          toast({
+            title: "Error",
+            description: "Ya existe un cliente con este correo electrónico",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error al crear cliente",
+            description: clientError.message || "No se pudo crear el cliente",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
-      // Find the selected plan
+      console.log('✅ [AddMember] Cliente creado:', clientResult);
+
+      // Buscar el plan seleccionado
       const selectedPlanData = plans.find(p => p.name === planName);
       if (!selectedPlanData) {
         toast({
@@ -310,15 +365,22 @@ const Subscriptions = () => {
         return;
       }
 
-      // Calculate end date (assuming monthly plans)
+      console.log('📋 [AddMember] Plan seleccionado:', selectedPlanData);
+
+      // Calcular fecha de fin (asumiendo planes mensuales)
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + 1);
 
-      // Create the subscription
+      console.log('📅 [AddMember] Fechas:', {
+        startDate,
+        endDate: endDate.toISOString().split('T')[0]
+      });
+
+      // Crear la suscripción
       const { error: subscriptionError } = await supabase
         .from('suscripciones')
         .insert({
-          cliente_id: clientData.id,
+          cliente_id: clientResult.id,
           plan_id: selectedPlanData.id,
           fecha_inicio: startDate,
           fecha_fin: endDate.toISOString().split('T')[0],
@@ -326,37 +388,41 @@ const Subscriptions = () => {
         });
 
       if (subscriptionError) {
-        console.error('Error creating subscription:', subscriptionError);
+        console.error('❌ [AddMember] Error al crear suscripción:', subscriptionError);
         toast({
-          title: "Error",
-          description: "No se pudo crear la suscripción",
+          title: "Error al crear suscripción",
+          description: subscriptionError.message || "No se pudo crear la suscripción",
           variant: "destructive",
         });
         return;
       }
 
+      console.log('✅ [AddMember] Suscripción creada exitosamente');
+
       toast({
-        title: "Éxito",
+        title: "¡Éxito!",
         description: `Cliente ${customerName} creado exitosamente con código ${codigo}`,
         variant: "default",
       });
 
-      // Refresh data
+      // Actualizar datos
       await fetchSubscriptionsData();
       
-      // Show invoice
+      // Mostrar factura
       setShowInvoice(true);
+
     } catch (error) {
-      console.error('Error:', error);
+      console.error('💥 [AddMember] Error general:', error);
       toast({
-        title: "Error",
-        description: "Error al crear el cliente",
+        title: "Error inesperado",
+        description: "Error al crear el cliente. Por favor, inténtelo de nuevo.",
         variant: "destructive",
       });
     }
   };
 
   const handlePlanChange = (name: string, price: number) => {
+    console.log('📋 [PlanChange] Plan seleccionado:', { name, price });
     setPlanName(name);
     setSubscriptionPrice(price);
     setSelectedPlan("custom");
@@ -432,7 +498,7 @@ const Subscriptions = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Dirección de correo"
+                  placeholder="Dirección de correo (opcional)"
                   className="col-span-3 bg-haven-dark border-white/10"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
@@ -444,7 +510,7 @@ const Subscriptions = () => {
                 </label>
                 <Input
                   id="phone"
-                  placeholder="Número de teléfono"
+                  placeholder="Número de teléfono (opcional)"
                   className="col-span-3 bg-haven-dark border-white/10"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
@@ -483,7 +549,7 @@ const Subscriptions = () => {
               <Button 
                 className="bg-haven-red hover:bg-haven-red/90"
                 onClick={handleAddMember}
-                disabled={!selectedPlan || !customerName || !startDate}
+                disabled={!planName || !customerName.trim() || !startDate}
               >
                 Añadir Miembro
               </Button>
