@@ -22,13 +22,26 @@ const Login = () => {
   const [signupRole, setSignupRole] = useState<'admin' | 'recepcion' | 'trainer'>('recepcion');
   
   const [isLoading, setIsLoading] = useState(false);
-  const { login, signup, isAuthenticated, getDefaultRoute, loading } = useAuth();
+  const { login, signup, isAuthenticated, getDefaultRoute, loading, user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Debug: mostrar estado de autenticación
+  useEffect(() => {
+    console.log('🔍 Estado de Login:', { 
+      isAuthenticated, 
+      loading, 
+      user: user?.id, 
+      profile: profile?.role 
+    });
+  }, [isAuthenticated, loading, user, profile]);
+
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      navigate(getDefaultRoute());
+      console.log('✅ Usuario autenticado, redirigiendo...');
+      const defaultRoute = getDefaultRoute();
+      console.log('🎯 Ruta de destino:', defaultRoute);
+      navigate(defaultRoute);
     }
   }, [isAuthenticated, loading, navigate, getDefaultRoute]);
 
@@ -44,17 +57,31 @@ const Login = () => {
       return;
     }
 
+    console.log('🔐 Iniciando proceso de login...');
     setIsLoading(true);
     
     const { error } = await login(loginEmail, loginPassword);
     
     if (error) {
+      console.error('❌ Error en login:', error);
+      
+      // Mensajes de error más específicos
+      let errorMessage = error;
+      if (error.includes('Invalid login credentials')) {
+        errorMessage = "Credenciales incorrectas. Verifica tu email y contraseña.";
+      } else if (error.includes('Email not confirmed')) {
+        errorMessage = "Por favor confirma tu email antes de iniciar sesión.";
+      } else if (error.includes('Too many requests')) {
+        errorMessage = "Demasiados intentos. Espera un momento antes de intentar nuevamente.";
+      }
+      
       toast({
         variant: "destructive",
         title: "Error de acceso",
-        description: error
+        description: errorMessage
       });
     } else {
+      console.log('✅ Login exitoso');
       toast({
         title: "Bienvenido",
         description: "Has iniciado sesión correctamente."
@@ -85,20 +112,34 @@ const Login = () => {
       return;
     }
 
+    console.log('📝 Iniciando proceso de registro...');
     setIsLoading(true);
     
     const { error } = await signup(signupEmail, signupPassword, signupFullName, signupRole);
     
     if (error) {
+      console.error('❌ Error en registro:', error);
+      
+      // Mensajes de error más específicos
+      let errorMessage = error;
+      if (error.includes('User already registered')) {
+        errorMessage = "Este email ya está registrado. Intenta iniciar sesión.";
+      } else if (error.includes('Password should be at least 6 characters')) {
+        errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+      } else if (error.includes('Unable to validate email address')) {
+        errorMessage = "Email inválido. Por favor verifica el formato.";
+      }
+      
       toast({
         variant: "destructive",
         title: "Error de registro",
-        description: error
+        description: errorMessage
       });
     } else {
+      console.log('✅ Registro exitoso');
       toast({
         title: "Registro exitoso",
-        description: "Tu cuenta ha sido creada. Por favor inicia sesión."
+        description: "Tu cuenta ha sido creada. Puedes iniciar sesión ahora."
       });
       // Clear signup form
       setSignupEmail("");
@@ -111,9 +152,13 @@ const Login = () => {
   };
 
   if (loading) {
+    console.log('⏳ Cargando autenticación...');
     return (
       <div className="min-h-screen bg-haven-dark flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-haven-red" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-haven-red mx-auto mb-4" />
+          <p className="text-white/60">Verificando autenticación...</p>
+        </div>
       </div>
     );
   }

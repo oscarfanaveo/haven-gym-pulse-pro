@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('🔍 Obteniendo perfil del usuario:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('id, full_name, role')
@@ -61,22 +62,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('❌ Error al obtener perfil:', error);
         return null;
       }
 
+      console.log('✅ Perfil obtenido:', data);
       return data;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('💥 Error general al obtener perfil:', error);
       return null;
     }
   };
 
   useEffect(() => {
+    console.log('🚀 Inicializando AuthProvider...');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('🔄 Estado de autenticación cambió:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -96,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('🔍 Sesión existente:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -114,24 +119,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('🔐 Intentando iniciar sesión para:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('❌ Error en login:', error);
         return { error: error.message };
       }
 
+      console.log('✅ Login exitoso:', data.user?.id);
       return { error: null };
     } catch (error) {
+      console.error('💥 Error general en login:', error);
       return { error: 'Error de conexión. Intente nuevamente.' };
     }
   };
 
   const signup = async (email: string, password: string, fullName: string, role: 'admin' | 'recepcion' | 'trainer' = 'recepcion') => {
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('📝 Registrando nuevo usuario:', email, role);
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -144,16 +156,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        console.error('❌ Error en registro:', error);
         return { error: error.message };
       }
 
+      console.log('✅ Registro exitoso:', data.user?.id);
       return { error: null };
     } catch (error) {
+      console.error('💥 Error general en registro:', error);
       return { error: 'Error de conexión. Intente nuevamente.' };
     }
   };
 
   const logout = async () => {
+    console.log('👋 Cerrando sesión...');
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
