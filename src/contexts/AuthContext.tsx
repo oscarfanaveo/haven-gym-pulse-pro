@@ -81,6 +81,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 Estado de autenticación cambió:', event, session?.user?.id);
+        
+        // Manejar eventos específicos de confirmación
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('✅ Usuario confirmado y autenticado');
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -147,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
             full_name: fullName,
             role: role
@@ -160,7 +166,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: error.message };
       }
 
-      console.log('✅ Registro exitoso:', data.user?.id);
+      console.log('✅ Registro exitoso - Confirmación requerida:', data.user?.id);
+      
+      // Si el usuario necesita confirmación de email
+      if (data.user && !data.user.email_confirmed_at) {
+        console.log('📧 Email de confirmación enviado');
+      }
+      
       return { error: null };
     } catch (error) {
       console.error('💥 Error general en registro:', error);

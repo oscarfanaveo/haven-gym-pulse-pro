@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle, Mail } from "lucide-react";
 
 const Login = () => {
   // Login form state
@@ -21,10 +22,15 @@ const Login = () => {
   const [signupFullName, setSignupFullName] = useState("");
   const [signupRole, setSignupRole] = useState<'admin' | 'recepcion' | 'trainer'>('recepcion');
   
+  // UI state
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailSent, setShowEmailSent] = useState(false);
+  const [emailSentTo, setEmailSentTo] = useState("");
+  
   const { login, signup, isAuthenticated, getDefaultRoute, loading, user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   // Debug: mostrar estado de autenticación
   useEffect(() => {
@@ -35,6 +41,27 @@ const Login = () => {
       profile: profile?.role 
     });
   }, [isAuthenticated, loading, user, profile]);
+
+  // Manejar confirmación de email desde URL
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+    
+    if (error) {
+      console.error('❌ Error de confirmación:', error, errorDescription);
+      toast({
+        variant: "destructive",
+        title: "Error de confirmación",
+        description: errorDescription || "Hubo un problema al confirmar tu email."
+      });
+    } else if (searchParams.get('type') === 'signup') {
+      console.log('✅ Email confirmado exitosamente');
+      toast({
+        title: "Email confirmado",
+        description: "Tu cuenta ha sido activada exitosamente. Ya puedes iniciar sesión."
+      });
+    }
+  }, [searchParams, toast]);
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -70,7 +97,7 @@ const Login = () => {
       if (error.includes('Invalid login credentials')) {
         errorMessage = "Credenciales incorrectas. Verifica tu email y contraseña.";
       } else if (error.includes('Email not confirmed')) {
-        errorMessage = "Por favor confirma tu email antes de iniciar sesión.";
+        errorMessage = "Tu email aún no ha sido confirmado. Revisa tu bandeja de entrada y confirma tu cuenta antes de iniciar sesión.";
       } else if (error.includes('Too many requests')) {
         errorMessage = "Demasiados intentos. Espera un momento antes de intentar nuevamente.";
       }
@@ -137,10 +164,14 @@ const Login = () => {
       });
     } else {
       console.log('✅ Registro exitoso');
+      // Mostrar pantalla de confirmación de email
+      setShowEmailSent(true);
+      setEmailSentTo(signupEmail);
       toast({
         title: "Registro exitoso",
-        description: "Tu cuenta ha sido creada. Puedes iniciar sesión ahora."
+        description: "Te hemos enviado un email de confirmación. Revisa tu bandeja de entrada."
       });
+      
       // Clear signup form
       setSignupEmail("");
       setSignupPassword("");
@@ -159,6 +190,50 @@ const Login = () => {
           <Loader2 className="h-8 w-8 animate-spin text-haven-red mx-auto mb-4" />
           <p className="text-white/60">Verificando autenticación...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Pantalla de confirmación de email enviado
+  if (showEmailSent) {
+    return (
+      <div className="min-h-screen bg-haven-dark flex items-center justify-center p-4">
+        <Card className="w-full max-w-md haven-card">
+          <CardHeader className="space-y-1 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-haven-red/10">
+              <Mail className="h-6 w-6 text-haven-red" />
+            </div>
+            <CardTitle className="text-2xl text-white">
+              Confirma tu email
+            </CardTitle>
+            <CardDescription className="text-white/60">
+              Te hemos enviado un enlace de confirmación
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert className="border-haven-red/20 bg-haven-red/5">
+              <CheckCircle className="h-4 w-4 text-haven-red" />
+              <AlertDescription className="text-white">
+                Hemos enviado un enlace de confirmación a <strong>{emailSentTo}</strong>.
+                Haz clic en el enlace del email para activar tu cuenta.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="space-y-2 text-sm text-white/60">
+              <p>• Revisa tu bandeja de entrada y la carpeta de spam</p>
+              <p>• El enlace expira en 24 horas</p>
+              <p>• Una vez confirmado, podrás iniciar sesión</p>
+            </div>
+            
+            <Button 
+              onClick={() => setShowEmailSent(false)}
+              variant="outline"
+              className="w-full"
+            >
+              Volver al login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -285,6 +360,14 @@ const Login = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                
+                <Alert className="border-blue-200/20 bg-blue-500/5">
+                  <Mail className="h-4 w-4 text-blue-400" />
+                  <AlertDescription className="text-white/80 text-sm">
+                    Te enviaremos un email de confirmación para activar tu cuenta.
+                  </AlertDescription>
+                </Alert>
+                
                 <Button 
                   type="submit" 
                   className="w-full bg-haven-red hover:bg-haven-red/90"
