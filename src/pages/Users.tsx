@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   UserPlus, Pencil, Trash2, UserCog
@@ -29,7 +28,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2, Mail } from "lucide-react";
 
 interface User {
   id: string;
@@ -48,9 +50,11 @@ interface FormData {
 
 const Users = () => {
   const { toast } = useToast();
+  const { signup } = useAuth();
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Usuarios hardcodeados para mostrar
   const [users] = useState<User[]>([
@@ -97,11 +101,68 @@ const Users = () => {
   };
 
   const handleAddUser = async () => {
-    toast({
-      variant: "destructive",
-      title: "Usuario Hardcodeado",
-      description: "En esta versión, los usuarios están hardcodeados. Use 'admin' o 'Rolo' para iniciar sesión."
-    });
+    if (!formData.username || !formData.password || !formData.fullName) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Por favor complete todos los campos obligatorios."
+      });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Las contraseñas no coinciden."
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "La contraseña debe tener al menos 6 caracteres."
+      });
+      return;
+    }
+
+    console.log('📝 Creando nuevo usuario desde admin...');
+    setIsLoading(true);
+    
+    const { error } = await signup(formData.username, formData.password, formData.fullName, formData.role);
+    
+    if (error) {
+      console.error('❌ Error al crear usuario:', error);
+      
+      // Mensajes de error más específicos
+      let errorMessage = error;
+      if (error.includes('User already registered')) {
+        errorMessage = "Este email ya está registrado.";
+      } else if (error.includes('Password should be at least 6 characters')) {
+        errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+      } else if (error.includes('Unable to validate email address')) {
+        errorMessage = "Email inválido. Por favor verifica el formato.";
+      }
+      
+      toast({
+        variant: "destructive",
+        title: "Error al crear usuario",
+        description: errorMessage
+      });
+    } else {
+      console.log('✅ Usuario creado exitosamente');
+      toast({
+        title: "Usuario creado",
+        description: "El usuario ha sido creado exitosamente. Se ha enviado un email de confirmación."
+      });
+      
+      resetForm();
+      setIsAddUserModalOpen(false);
+    }
+    
+    setIsLoading(false);
   };
 
   const handleEditUser = async () => {
@@ -150,7 +211,7 @@ const Users = () => {
             Gestión de Usuarios
           </h1>
           <p className="text-muted-foreground">
-            Usuarios hardcodeados del sistema
+            Administra los usuarios del sistema
           </p>
         </div>
         <Dialog open={isAddUserModalOpen} onOpenChange={setIsAddUserModalOpen}>
@@ -162,58 +223,76 @@ const Users = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Añadir Nuevo Usuario</DialogTitle>
+              <DialogTitle>Crear Nuevo Usuario</DialogTitle>
               <DialogDescription>
-                Nota: En esta versión los usuarios están hardcodeados.
+                Complete los datos para crear un nuevo usuario del sistema.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <label htmlFor="username">Nombre de Usuario</label>
-                <Input
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  placeholder="Nombre de usuario"
-                />
-              </div>
-              <div className="grid gap-2">
-                <label htmlFor="fullName">Nombre Completo</label>
+                <label htmlFor="fullName" className="text-sm font-medium">
+                  Nombre Completo
+                </label>
                 <Input
                   id="fullName"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="Nombre completo"
+                  placeholder="Nombre completo del usuario"
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
-                <label htmlFor="role">Rol</label>
-                <Select value={formData.role} onValueChange={handleRoleChange}>
+                <label htmlFor="username" className="text-sm font-medium">
+                  Correo Electrónico
+                </label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="email"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="usuario@correo.com"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="role" className="text-sm font-medium">
+                  Rol
+                </label>
+                <Select 
+                  value={formData.role} 
+                  onValueChange={handleRoleChange}
+                  disabled={isLoading}
+                >
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Seleccione un rol" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Administrador</SelectItem>
                     <SelectItem value="recepcion">Recepción</SelectItem>
                     <SelectItem value="trainer">Entrenador</SelectItem>
+                    <SelectItem value="admin">Administrador</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <label htmlFor="password">Contraseña</label>
+                <label htmlFor="password" className="text-sm font-medium">
+                  Contraseña
+                </label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Contraseña"
+                  placeholder="Mínimo 6 caracteres"
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
-                <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+                <label htmlFor="confirmPassword" className="text-sm font-medium">
+                  Confirmar Contraseña
+                </label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -221,18 +300,35 @@ const Users = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   placeholder="Confirmar contraseña"
+                  disabled={isLoading}
                 />
               </div>
+              
+              <Alert className="border-blue-200/20 bg-blue-500/5">
+                <Mail className="h-4 w-4 text-blue-400" />
+                <AlertDescription className="text-sm">
+                  Se enviará un email de confirmación al usuario para activar su cuenta.
+                </AlertDescription>
+              </Alert>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                resetForm();
-                setIsAddUserModalOpen(false);
-              }}>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  resetForm();
+                  setIsAddUserModalOpen(false);
+                }}
+                disabled={isLoading}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" onClick={handleAddUser}>
-                Guardar
+              <Button 
+                type="submit" 
+                onClick={handleAddUser}
+                disabled={isLoading}
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Crear Usuario
               </Button>
             </DialogFooter>
           </DialogContent>
