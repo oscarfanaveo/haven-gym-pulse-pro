@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { 
   UserPlus, Pencil, Trash2, UserCog
 } from "lucide-react";
@@ -32,6 +33,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface User {
   id: string;
@@ -55,22 +57,10 @@ const Users = () => {
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   
-  // Usuarios hardcodeados para mostrar
-  const [users] = useState<User[]>([
-    {
-      id: '1',
-      username: 'admin',
-      fullName: 'Administrador',
-      role: 'admin'
-    },
-    {
-      id: '2',
-      username: 'Rolo',
-      fullName: 'Rolo García',
-      role: 'recepcion'
-    }
-  ]);
+  // Estado para usuarios reales desde la base de datos
+  const [users, setUsers] = useState<User[]>([]);
   
   // Estado para formulario
   const [formData, setFormData] = useState<FormData>({
@@ -80,6 +70,55 @@ const Users = () => {
     password: "",
     confirmPassword: "",
   });
+
+  // Función para obtener usuarios desde la base de datos
+  const fetchUsers = async () => {
+    try {
+      console.log('🔍 Obteniendo usuarios desde la base de datos...');
+      setIsLoadingUsers(true);
+      
+      // Obtener perfiles con información de los usuarios
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .order('full_name');
+
+      if (error) {
+        console.error('❌ Error al obtener usuarios:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudieron cargar los usuarios."
+        });
+        return;
+      }
+
+      // Transformar los datos al formato esperado
+      const transformedUsers: User[] = profiles.map(profile => ({
+        id: profile.id,
+        username: profile.id, // Usamos el ID como username temporalmente
+        fullName: profile.full_name || 'Sin nombre',
+        role: profile.role
+      }));
+
+      console.log('✅ Usuarios obtenidos:', transformedUsers.length);
+      setUsers(transformedUsers);
+    } catch (error) {
+      console.error('💥 Error general al obtener usuarios:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Hubo un problema al cargar los usuarios."
+      });
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  // Effect para cargar usuarios al montar el componente
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -160,6 +199,9 @@ const Users = () => {
       
       resetForm();
       setIsAddUserModalOpen(false);
+      
+      // Recargar la lista de usuarios
+      fetchUsers();
     }
     
     setIsLoading(false);
@@ -168,8 +210,8 @@ const Users = () => {
   const handleEditUser = async () => {
     toast({
       variant: "destructive",
-      title: "Usuario Hardcodeado",
-      description: "En esta versión, los usuarios están hardcodeados y no se pueden editar."
+      title: "Funcionalidad no disponible",
+      description: "La edición de usuarios aún no está implementada."
     });
   };
 
@@ -188,8 +230,8 @@ const Users = () => {
   const handleDeleteUser = async (userId: string) => {
     toast({
       variant: "destructive",
-      title: "Usuario Hardcodeado",
-      description: "En esta versión, los usuarios están hardcodeados y no se pueden eliminar."
+      title: "Funcionalidad no disponible",
+      description: "La eliminación de usuarios aún no está implementada."
     });
   };
 
@@ -339,7 +381,7 @@ const Users = () => {
             <DialogHeader>
               <DialogTitle>Editar Usuario</DialogTitle>
               <DialogDescription>
-                Nota: En esta versión los usuarios están hardcodeados.
+                Funcionalidad de edición pendiente de implementar.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -351,6 +393,7 @@ const Users = () => {
                   value={formData.username}
                   onChange={handleInputChange}
                   placeholder="Nombre de usuario"
+                  disabled
                 />
               </div>
               <div className="grid gap-2">
@@ -361,11 +404,12 @@ const Users = () => {
                   value={formData.fullName}
                   onChange={handleInputChange}
                   placeholder="Nombre completo"
+                  disabled
                 />
               </div>
               <div className="grid gap-2">
                 <label htmlFor="edit-role">Rol</label>
-                <Select value={formData.role} onValueChange={handleRoleChange}>
+                <Select value={formData.role} onValueChange={handleRoleChange} disabled>
                   <SelectTrigger id="edit-role">
                     <SelectValue placeholder="Seleccione un rol" />
                   </SelectTrigger>
@@ -384,7 +428,7 @@ const Users = () => {
               }}>
                 Cancelar
               </Button>
-              <Button type="submit" onClick={handleEditUser}>
+              <Button type="submit" onClick={handleEditUser} disabled>
                 Actualizar
               </Button>
             </DialogFooter>
@@ -396,40 +440,59 @@ const Users = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Usuario</TableHead>
+              <TableHead>ID</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Rol</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.username}</TableCell>
-                <TableCell>{user.fullName}</TableCell>
-                <TableCell>{getRoleDisplayText(user.role)}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => openEditModal(user)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Editar</span>
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => handleDeleteUser(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                      <span className="sr-only">Eliminar</span>
-                    </Button>
+            {isLoadingUsers ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Cargando usuarios...
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  No hay usuarios registrados en el sistema
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-mono text-sm">{user.id.substring(0, 8)}...</TableCell>
+                  <TableCell className="font-medium">{user.fullName}</TableCell>
+                  <TableCell>{getRoleDisplayText(user.role)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => openEditModal(user)}
+                        disabled
+                      >
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Editar</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleDeleteUser(user.id)}
+                        disabled
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <span className="sr-only">Eliminar</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
