@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,10 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Permisos por rol
+  // Permisos por rol - Actualizados para que recepcion tenga acceso limitado a usuarios
   const ROLE_PERMISSIONS = {
     admin: ['/', '/subscriptions', '/sales', '/products', '/reports', '/training', '/users', '/subscription-plans', '/client-tracking'],
-    recepcion: ['/subscriptions', '/sales', '/products', '/training', '/client-tracking'],
+    recepcion: ['/', '/subscriptions', '/sales', '/products', '/training', '/client-tracking', '/users'], // Agregado /users para recepcion
     trainer: ['/training', '/client-tracking']
   };
 
@@ -123,6 +122,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
+  const hasPermission = (page: string): boolean => {
+    if (!profile) {
+      console.log('❌ No hay perfil, sin permisos para:', page);
+      return false;
+    }
+    
+    const permissions = ROLE_PERMISSIONS[profile.role] || [];
+    const hasAccess = permissions.includes(page);
+    
+    console.log('🔐 Verificando permisos:');
+    console.log('  - Usuario:', profile.full_name);
+    console.log('  - Rol:', profile.role);
+    console.log('  - Página:', page);
+    console.log('  - Permisos disponibles:', permissions);
+    console.log('  - Acceso permitido:', hasAccess);
+    
+    return hasAccess;
+  };
+
+  const getDefaultRoute = (): string => {
+    if (!profile) return '/';
+    return DEFAULT_ROUTES[profile.role] || '/';
+  };
+
   const login = async (email: string, password: string) => {
     try {
       console.log('🔐 Intentando iniciar sesión para:', email);
@@ -186,17 +209,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setProfile(null);
     setSession(null);
-  };
-
-  const hasPermission = (page: string): boolean => {
-    if (!profile) return false;
-    const permissions = ROLE_PERMISSIONS[profile.role] || [];
-    return permissions.includes(page);
-  };
-
-  const getDefaultRoute = (): string => {
-    if (!profile) return '/';
-    return DEFAULT_ROUTES[profile.role] || '/';
   };
 
   const value = {

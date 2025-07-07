@@ -8,8 +8,12 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading, hasPermission } = useAuth();
+  const { isAuthenticated, loading, hasPermission, getDefaultRoute } = useAuth();
   const location = useLocation();
+
+  console.log('🔒 ProtectedRoute - Ruta:', location.pathname);
+  console.log('🔒 ProtectedRoute - Autenticado:', isAuthenticated);
+  console.log('🔒 ProtectedRoute - Cargando:', loading);
 
   if (loading) {
     return (
@@ -20,12 +24,16 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated) {
+    console.log('❌ No autenticado, redirigiendo a login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Check if user has permission to access this route
   if (!hasPermission(location.pathname)) {
-    return <Navigate to="/" replace />;
+    console.log('❌ Sin permisos para:', location.pathname);
+    const defaultRoute = getDefaultRoute();
+    console.log('🔄 Redirigiendo a ruta por defecto:', defaultRoute);
+    return <Navigate to={defaultRoute} replace />;
   }
 
   return <>{children}</>;
