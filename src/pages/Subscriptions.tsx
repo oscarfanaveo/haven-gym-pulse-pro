@@ -354,9 +354,11 @@ const Subscriptions = () => {
 
       console.log('✅ [AddMember] Cliente creado:', clientResult);
 
-      // Buscar el plan seleccionado
+      // Buscar el plan seleccionado por nombre (ya que ahora planName contiene el nombre real del plan)
       const selectedPlanData = plans.find(p => p.name === planName);
       if (!selectedPlanData) {
+        console.error('❌ [AddMember] Plan no encontrado:', planName);
+        console.log('📋 [AddMember] Planes disponibles:', plans);
         toast({
           title: "Error",
           description: "Plan seleccionado no válido",
@@ -521,7 +523,7 @@ const Subscriptions = () => {
                   Plan *
                 </label>
                 <div className="col-span-3">
-                  <PlanSelector onPlanChange={handlePlanChange} />
+                  <PlanSelector plans={plans} onPlanChange={handlePlanChange} />
                   {planName && (
                     <p className="text-sm text-white/60 mt-1">
                       Plan seleccionado: {planName} - {subscriptionPrice} Bs
