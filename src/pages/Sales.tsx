@@ -36,7 +36,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CartProvider, useCart } from "@/contexts/CartContext";
 import ShoppingCart from "@/components/ShoppingCart";
-import { fetchSalesData, fetchProductsData, Sale, Product } from "@/utils/salesUtils";
+import { fetchSalesData, fetchProductsData, createSale, Sale, Product } from "@/utils/salesUtils";
 import { toast } from "sonner";
 
 const getStatusBadgeClass = (status: string) => {
@@ -57,6 +57,7 @@ const SalesContent = () => {
   const [openNewSale, setOpenNewSale] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [customerName, setCustomerName] = useState("");
   const [salesData, setSalesData] = useState<Sale[]>([]);
   const [productsData, setProductsData] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +99,22 @@ const SalesContent = () => {
   // Obtener categorías únicas
   const categories = Array.from(new Set(productsData.map(product => product.category)));
 
+  // Función para recargar las ventas
+  const refreshSales = async () => {
+    try {
+      const sales = await fetchSalesData();
+      setSalesData(sales);
+    } catch (error) {
+      console.error('Error recargando ventas:', error);
+    }
+  };
+
+  const handleSaleCompleted = () => {
+    refreshSales();
+    setOpenNewSale(false);
+    setCustomerName("");
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -138,6 +155,8 @@ const SalesContent = () => {
                     id="customer"
                     placeholder="Nombre del cliente"
                     className="col-span-3 bg-haven-dark border-white/10"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
                   />
                 </div>
               </div>
@@ -200,7 +219,10 @@ const SalesContent = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <ShoppingCart />
+          <ShoppingCart 
+            customerName={customerName}
+            onSaleCompleted={handleSaleCompleted}
+          />
         </div>
       </div>
 

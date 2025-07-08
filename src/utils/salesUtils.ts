@@ -120,3 +120,53 @@ export const fetchProductsData = async (): Promise<Product[]> => {
   console.log('✅ [Products] Productos formateados:', formattedProducts);
   return formattedProducts;
 };
+
+export const createSale = async (saleData: {
+  customerName: string;
+  items: Array<{ id: string; name: string; price: number; quantity: number }>;
+  total: number;
+}): Promise<void> => {
+  console.log('🔍 [Sales] Creando nueva venta...', saleData);
+  
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  // Crear la venta
+  const { data: ventaData, error: ventaError } = await supabase
+    .from('ventas')
+    .insert({
+      nombre_cliente_temporal: saleData.customerName,
+      total: saleData.total,
+      estado: 'Completada',
+      vendedor_usuario_id: user.id
+    })
+    .select()
+    .single();
+
+  if (ventaError) {
+    console.error('❌ [Sales] Error creando venta:', ventaError);
+    throw new Error(`Error al crear la venta: ${ventaError.message}`);
+  }
+
+  // Crear los detalles de la venta (productos)
+  const ventaProductos = saleData.items.map(item => ({
+    venta_id: ventaData.id,
+    producto_id: parseInt(item.id),
+    cantidad: item.quantity,
+    precio_unitario: item.price
+  }));
+
+  const { error: detallesError } = await supabase
+    .from('ventas_productos')
+    .insert(ventaProductos);
+
+  if (detallesError) {
+    console.error('❌ [Sales] Error creando detalles de venta:', detallesError);
+    throw new Error(`Error al crear los detalles de la venta: ${detallesError.message}`);
+  }
+
+  console.log('✅ [Sales] Venta creada exitosamente');
+};

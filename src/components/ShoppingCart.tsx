@@ -7,20 +7,59 @@ import { Separator } from '@/components/ui/separator';
 import { useCart, CartItem } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 import Invoice from '@/components/Invoice';
+import { createSale } from '@/utils/salesUtils';
+import { toast } from 'sonner';
 
-const ShoppingCart: React.FC = () => {
+interface ShoppingCartProps {
+  customerName?: string;
+  onSaleCompleted?: () => void;
+}
+
+const ShoppingCart: React.FC<ShoppingCartProps> = ({ customerName = "", onSaleCompleted }) => {
   const { items, removeItem, updateQuantity, clearCart, getTotal } = useCart();
   const [open, setOpen] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCheckout = () => {
-    // Show invoice instead of clearing cart immediately
-    setShowInvoice(true);
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+    
+    if (!customerName.trim()) {
+      toast.error('Debe especificar un nombre de cliente');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      
+      await createSale({
+        customerName: customerName.trim(),
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        total: getTotal()
+      });
+
+      toast.success('Venta registrada exitosamente');
+      setShowInvoice(true);
+      
+      // Notify parent component that sale was completed
+      if (onSaleCompleted) {
+        onSaleCompleted();
+      }
+    } catch (error) {
+      console.error('Error al procesar la venta:', error);
+      toast.error('Error al procesar la venta');
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   const handleCloseInvoice = () => {
     setShowInvoice(false);
-    // Clear cart and close dialog after viewing invoice
     clearCart();
     setOpen(false);
   };
@@ -100,8 +139,9 @@ const ShoppingCart: React.FC = () => {
                 <Button 
                   className="bg-haven-red hover:bg-haven-red/90"
                   onClick={handleCheckout}
+                  disabled={isProcessing || !customerName.trim()}
                 >
-                  Procesar Venta
+                  {isProcessing ? 'Procesando...' : 'Procesar Venta'}
                 </Button>
               )}
             </div>
