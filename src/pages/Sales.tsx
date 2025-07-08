@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, MoreHorizontal, Package, Trash2, Receipt, ArrowUpDown, ShoppingCart as CartIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,64 +36,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CartProvider, useCart } from "@/contexts/CartContext";
 import ShoppingCart from "@/components/ShoppingCart";
-
-// Datos de ejemplo para ventas
-const salesData = [
-  {
-    id: "1",
-    date: "10/05/2025",
-    customer: "Miguel Rodríguez",
-    items: ["Whey Protein Powder", "Shaker Bottle"],
-    amount: 395,
-    status: "Completada"
-  },
-  {
-    id: "2",
-    date: "09/05/2025",
-    customer: "Laura Sánchez",
-    items: ["Women's Leggings", "Protein Bar"],
-    amount: 195,
-    status: "Completada"
-  },
-  {
-    id: "3",
-    date: "09/05/2025",
-    customer: "Carlos Mendoza",
-    items: ["Pre-Workout Supplement"],
-    amount: 220,
-    status: "Completada"
-  },
-  {
-    id: "4",
-    date: "08/05/2025",
-    customer: "Ana Martínez",
-    items: ["Gym Gloves", "Protein Bar"],
-    amount: 135,
-    status: "Completada"
-  },
-  {
-    id: "5",
-    date: "07/05/2025",
-    customer: "José García",
-    items: ["Whey Protein Powder"],
-    amount: 350,
-    status: "Completada"
-  }
-];
-
-// Datos de ejemplo para productos
-const productsData = [
-  { id: "1", name: "Whey Protein Powder", price: 350, category: "Suplementos" },
-  { id: "2", name: "Pre-Workout Supplement", price: 220, category: "Suplementos" },
-  { id: "3", name: "Protein Bar", price: 35, category: "Snacks" },
-  { id: "4", name: "Shaker Bottle", price: 45, category: "Accesorios" },
-  { id: "5", name: "Gym Gloves", price: 85, category: "Accesorios" },
-  { id: "6", name: "Women's Leggings", price: 160, category: "Ropa" },
-  { id: "7", name: "Men's Shorts", price: 120, category: "Ropa" },
-  { id: "8", name: "Creatina Monohidrato", price: 280, category: "Suplementos" },
-  { id: "9", name: "BCAA Complex", price: 190, category: "Suplementos" },
-  { id: "10", name: "Toalla de Entrenamiento", price: 75, category: "Accesorios" }
-];
+import { fetchSalesData, fetchProductsData, Sale, Product } from "@/utils/salesUtils";
+import { toast } from "sonner";
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
@@ -108,16 +52,41 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
-// Calcular estadísticas
-const totalSales = salesData.reduce((sum, sale) => sum + sale.amount, 0);
-const totalTransactions = salesData.length;
-const avgSale = totalSales / totalTransactions;
 
 const SalesContent = () => {
   const [openNewSale, setOpenNewSale] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [salesData, setSalesData] = useState<Sale[]>([]);
+  const [productsData, setProductsData] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [sales, products] = await Promise.all([
+          fetchSalesData(),
+          fetchProductsData()
+        ]);
+        setSalesData(sales);
+        setProductsData(products);
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+        toast.error('Error al cargar los datos de ventas');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Calcular estadísticas
+  const totalSales = salesData.reduce((sum, sale) => sum + sale.amount, 0);
+  const totalTransactions = salesData.length;
+  const avgSale = totalTransactions > 0 ? totalSales / totalTransactions : 0;
 
   // Filtrar productos por categoría y término de búsqueda
   const filteredProducts = productsData.filter(product => {
@@ -128,6 +97,16 @@ const SalesContent = () => {
 
   // Obtener categorías únicas
   const categories = Array.from(new Set(productsData.map(product => product.category)));
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-48">
+          <p className="text-white/60">Cargando datos de ventas...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
