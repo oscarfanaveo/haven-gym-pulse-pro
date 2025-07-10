@@ -34,58 +34,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useTrainingData, Exercise } from "@/hooks/useTrainingData";
 
-// Datos de ejemplo para ejercicios de entrenamiento
-const initialExercisesData = [
-  {
-    id: "1",
-    name: "Press de Banca",
-    category: "Pecho",
-    machine: "Máquina de Press de Banca",
-    description: "Acuéstese en el banco con los pies en el suelo. Agarre la barra con las manos un poco más anchas que los hombros. Baje la barra al nivel del pecho, luego empuje hacia arriba.",
-    image: "https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=400&h=300&fit=crop"
-  },
-  {
-    id: "2",
-    name: "Prensa de Piernas",
-    category: "Piernas",
-    machine: "Máquina de Prensa de Piernas",
-    description: "Siéntese en la máquina con la espalda contra el respaldo. Coloque los pies separados a la altura de las caderas en la plataforma. Empuje la plataforma extendiendo las piernas.",
-    image: "https://images.unsplash.com/photo-1452960962994-acf4fd70b632?w=400&h=300&fit=crop"
-  },
-  {
-    id: "3",
-    name: "Jalón al Pecho",
-    category: "Espalda",
-    machine: "Máquina de Cables",
-    description: "Siéntese en la máquina con los muslos asegurados. Agarre la barra con un agarre ancho. Tire de la barra hacia abajo hasta el nivel del pecho mientras mantiene la espalda recta.",
-    image: "https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=400&h=300&fit=crop"
-  },
-  {
-    id: "4",
-    name: "Curl de Bíceps",
-    category: "Brazos",
-    machine: "Mancuerna",
-    description: "De pie con una mancuerna en cada mano, brazos a los lados. Mantenga los codos cerca del torso y levante las pesas hasta el nivel de los hombros.",
-    image: "https://images.unsplash.com/photo-1438565434616-3ef039228b15?w=400&h=300&fit=crop"
-  },
-  {
-    id: "5",
-    name: "Carrera en Cinta",
-    category: "Cardio",
-    machine: "Cinta de Correr",
-    description: "Configure la velocidad y la inclinación deseadas. Mantenga una postura adecuada con los hombros hacia atrás y el núcleo activado mientras corre.",
-    image: "https://images.unsplash.com/photo-1501286353178-1ec881214838?w=400&h=300&fit=crop"
-  },
-  {
-    id: "6",
-    name: "Press de Hombros",
-    category: "Hombros",
-    machine: "Máquina de Press de Hombros",
-    description: "Siéntese con la espalda contra el respaldo. Agarre las asas a la altura de los hombros. Empuje hacia arriba hasta que los brazos estén extendidos, luego baje de nuevo.",
-    image: "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=300&fit=crop"
-  },
-];
 
 const categoryColors: Record<string, string> = {
   "Pecho": "bg-blue-500/20 text-blue-400",
@@ -97,18 +47,10 @@ const categoryColors: Record<string, string> = {
   "Core": "bg-teal-500/20 text-teal-400",
 };
 
-interface Exercise {
-  id: string;
-  name: string;
-  category: string;
-  machine: string;
-  description: string;
-  image: string;
-}
 
 const Training = () => {
   const { toast } = useToast();
-  const [exercisesData, setExercisesData] = useState<Exercise[]>(initialExercisesData);
+  const { exercises, loading, addExercise, updateExercise, deleteExercise } = useTrainingData();
   const [openNewExercise, setOpenNewExercise] = useState(false);
   const [openEditExercise, setOpenEditExercise] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -122,37 +64,36 @@ const Training = () => {
   });
 
   const filteredExercises = activeCategory === "all" 
-    ? exercisesData 
-    : exercisesData.filter(exercise => exercise.category.toLowerCase() === activeCategory);
+    ? exercises 
+    : exercises.filter(exercise => exercise.category?.toLowerCase() === activeCategory);
 
   const handleEditExercise = (exercise: Exercise) => {
     setEditingExercise(exercise);
     setOpenEditExercise(true);
   };
 
-  const handleDeleteExercise = (exerciseId: string) => {
-    setExercisesData(prev => prev.filter(ex => ex.id !== exerciseId));
-    toast({
-      title: "Ejercicio eliminado",
-      description: "El ejercicio ha sido eliminado exitosamente.",
-    });
+  const handleDeleteExercise = async (exerciseId: number) => {
+    await deleteExercise(exerciseId);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingExercise) return;
     
-    setExercisesData(prev => prev.map(ex => 
-      ex.id === editingExercise.id ? editingExercise : ex
-    ));
-    setOpenEditExercise(false);
-    setEditingExercise(null);
-    toast({
-      title: "Ejercicio actualizado",
-      description: "Los cambios han sido guardados exitosamente.",
+    const result = await updateExercise(editingExercise.id, {
+      name: editingExercise.name,
+      category: editingExercise.category,
+      machine: editingExercise.machine,
+      description: editingExercise.description,
+      image: editingExercise.image
     });
+
+    if (result) {
+      setOpenEditExercise(false);
+      setEditingExercise(null);
+    }
   };
 
-  const handleAddExercise = () => {
+  const handleAddExercise = async () => {
     if (!newExercise.name || !newExercise.category) {
       toast({
         title: "Error",
@@ -162,24 +103,24 @@ const Training = () => {
       return;
     }
 
-    const exercise: Exercise = {
-      id: Date.now().toString(),
-      ...newExercise
-    };
+    const result = await addExercise({
+      name: newExercise.name,
+      category: newExercise.category,
+      machine: newExercise.machine,
+      description: newExercise.description,
+      image: newExercise.image
+    });
 
-    setExercisesData(prev => [...prev, exercise]);
-    setNewExercise({
-      name: "",
-      category: "",
-      machine: "",
-      description: "",
-      image: ""
-    });
-    setOpenNewExercise(false);
-    toast({
-      title: "Ejercicio añadido",
-      description: "El nuevo ejercicio ha sido añadido exitosamente.",
-    });
+    if (result) {
+      setNewExercise({
+        name: "",
+        category: "",
+        machine: "",
+        description: "",
+        image: ""
+      });
+      setOpenNewExercise(false);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit: boolean = false) => {
@@ -447,15 +388,35 @@ const Training = () => {
         </div>
         
         <TabsContent value="grid" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredExercises.map((exercise) => (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="haven-card animate-pulse">
+                  <div className="aspect-video bg-haven-dark"></div>
+                  <CardContent className="p-4">
+                    <div className="h-4 bg-haven-dark rounded mb-2"></div>
+                    <div className="h-3 bg-haven-dark rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-haven-dark rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredExercises.map((exercise) => (
               <Card key={exercise.id} className="haven-card overflow-hidden">
                 <div className="aspect-video bg-haven-dark relative">
-                  <img 
-                    src={exercise.image} 
-                    alt={exercise.name} 
-                    className="w-full h-full object-cover"
-                  />
+                  {exercise.image ? (
+                    <img 
+                      src={exercise.image} 
+                      alt={exercise.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Dumbbell className="w-12 h-12 text-white/40" />
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -483,44 +444,58 @@ const Training = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-bold text-lg">{exercise.name}</h3>
-                    <span className={`px-2 py-1 rounded-full text-xs ${categoryColors[exercise.category]}`}>
-                      {exercise.category}
+                    <span className={`px-2 py-1 rounded-full text-xs ${categoryColors[exercise.category || 'Core']}`}>
+                      {exercise.category || 'Sin categoría'}
                     </span>
                   </div>
-                  <p className="text-sm text-white/60 mb-3">{exercise.machine}</p>
-                  <p className="text-sm">{exercise.description}</p>
+                  <p className="text-sm text-white/60 mb-3">{exercise.machine || 'No especificado'}</p>
+                  <p className="text-sm">{exercise.description || 'Sin descripción'}</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="list" className="mt-0">
           <Card className="haven-card">
             <CardContent className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4">Ejercicio</th>
-                      <th className="text-left py-3 px-4">Categoría</th>
-                      <th className="text-left py-3 px-4">Máquina</th>
-                      <th className="text-left py-3 px-4">Descripción</th>
-                      <th className="text-right py-3 px-4">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredExercises.map((exercise) => (
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center space-x-4 animate-pulse">
+                      <div className="h-4 bg-haven-dark rounded flex-1"></div>
+                      <div className="h-4 bg-haven-dark rounded w-20"></div>
+                      <div className="h-4 bg-haven-dark rounded w-24"></div>
+                      <div className="h-4 bg-haven-dark rounded flex-1"></div>
+                      <div className="h-4 bg-haven-dark rounded w-16"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-3 px-4">Ejercicio</th>
+                        <th className="text-left py-3 px-4">Categoría</th>
+                        <th className="text-left py-3 px-4">Máquina</th>
+                        <th className="text-left py-3 px-4">Descripción</th>
+                        <th className="text-right py-3 px-4">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredExercises.map((exercise) => (
                       <tr key={exercise.id} className="border-b border-white/10 hover:bg-haven-dark/50">
                         <td className="py-4 px-4 font-medium">{exercise.name}</td>
                         <td className="py-4 px-4">
-                          <span className={`px-2 py-1 rounded-full text-xs ${categoryColors[exercise.category]}`}>
-                            {exercise.category}
+                          <span className={`px-2 py-1 rounded-full text-xs ${categoryColors[exercise.category || 'Core']}`}>
+                            {exercise.category || 'Sin categoría'}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-white/80">{exercise.machine}</td>
+                        <td className="py-4 px-4 text-white/80">{exercise.machine || 'No especificado'}</td>
                         <td className="py-4 px-4">
-                          <p className="text-white/60 truncate max-w-md">{exercise.description}</p>
+                          <p className="text-white/60 truncate max-w-md">{exercise.description || 'Sin descripción'}</p>
                         </td>
                         <td className="py-4 px-4 text-right">
                           <DropdownMenu>
@@ -546,10 +521,11 @@ const Training = () => {
                           </DropdownMenu>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
