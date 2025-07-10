@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,71 +15,46 @@ import AddProductDialog from "@/components/products/AddProductDialog";
 import ProductSalesPlaceholder from "@/components/products/ProductSalesPlaceholder";
 import { CartProvider } from "@/contexts/CartContext";
 import ShoppingCartComponent from "@/components/ShoppingCart";
-
-// Mock data for products
-const productsData = [
-  {
-    id: "1",
-    name: "Proteína en Polvo",
-    category: "Suplemento",
-    price: 350,
-    stock: 24,
-    status: "En Stock"
-  },
-  {
-    id: "2",
-    name: "Guantes de Gimnasio",
-    category: "Accesorio",
-    price: 120,
-    stock: 15,
-    status: "En Stock"
-  },
-  {
-    id: "3",
-    name: "Barra de Proteína",
-    category: "Suplemento",
-    price: 15,
-    stock: 36,
-    status: "En Stock"
-  },
-  {
-    id: "4",
-    name: "Leggings para Mujer",
-    category: "Ropa",
-    price: 180,
-    stock: 2,
-    status: "Poco Stock"
-  },
-  {
-    id: "5",
-    name: "Botella Shaker",
-    category: "Accesorio",
-    price: 45,
-    stock: 0,
-    status: "Sin Stock"
-  },
-  {
-    id: "6",
-    name: "Suplemento Pre-Entrenamiento",
-    category: "Suplemento",
-    price: 220,
-    stock: 8,
-    status: "En Stock"
-  },
-  {
-    id: "7",
-    name: "Camiseta para Hombre",
-    category: "Ropa",
-    price: 150,
-    stock: 0,
-    status: "Sin Stock"
-  },
-];
-
-const lowStockItems = productsData.filter(product => product.status === "Poco Stock").length;
-const outOfStockItems = productsData.filter(product => product.status === "Sin Stock").length;
+import { fetchProducts, Product } from "@/utils/productUtils";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductsContent = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los productos",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const lowStockItems = products.filter(product => product.status === "Poco Stock").length;
+  const outOfStockItems = products.filter(product => product.status === "Sin Stock").length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-white">Cargando productos...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -88,7 +63,7 @@ const ProductsContent = () => {
           <p className="text-white/60">Gestión de inventario y ventas de productos</p>
         </div>
         <div className="flex gap-2">
-          <AddProductDialog />
+          <AddProductDialog onProductAdded={loadProducts} />
           <ShoppingCartComponent />
           <Button 
             variant="outline" 
@@ -101,7 +76,7 @@ const ProductsContent = () => {
       </div>
 
       <ProductStatsCards 
-        totalProducts={productsData.length}
+        totalProducts={products.length}
         lowStockItems={lowStockItems}
         outOfStockItems={outOfStockItems}
       />
@@ -114,7 +89,7 @@ const ProductsContent = () => {
         <TabsContent value="inventory" className="mt-4">
           <Card className="bg-haven-gray border-white/10 text-white">
             <CardContent className="p-6">
-              <ProductsTable products={productsData} />
+              <ProductsTable products={products} onProductUpdated={loadProducts} />
             </CardContent>
           </Card>
         </TabsContent>

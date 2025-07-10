@@ -26,16 +26,17 @@ import {
 import { useCart } from "@/contexts/CartContext";
 
 interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
+  id: number;
+  nombre: string;
+  categoria: string | null;
+  precio: number;
   stock: number;
   status: string;
 }
 
 interface ProductsTableProps {
   products: Product[];
+  onProductUpdated?: () => void;
 }
 
 export const getStatusBadgeClass = (status: string) => {
@@ -71,9 +72,9 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
     if (product.status === "Sin Stock") return;
     
     addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price
+      id: product.id.toString(),
+      name: product.nombre,
+      price: product.precio
     });
   };
 
@@ -133,13 +134,13 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
         <TableBody>
           {products.map((product) => (
             <TableRow key={product.id} className="border-white/10 hover:bg-haven-dark/70">
-              <TableCell className="font-medium">{product.name}</TableCell>
+              <TableCell className="font-medium">{product.nombre}</TableCell>
               <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs ${getCategoryBadgeClass(product.category)}`}>
-                  {product.category}
+                <span className={`px-2 py-1 rounded-full text-xs ${getCategoryBadgeClass(product.categoria || 'Sin categoría')}`}>
+                  {product.categoria || 'Sin categoría'}
                 </span>
               </TableCell>
-              <TableCell>{product.price} Bs</TableCell>
+              <TableCell>{product.precio} Bs</TableCell>
               <TableCell>{product.stock}</TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(product.status)}`}>

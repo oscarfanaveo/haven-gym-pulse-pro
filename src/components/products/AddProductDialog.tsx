@@ -20,9 +20,70 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { addProduct } from "@/utils/productUtils";
+import { useToast } from "@/hooks/use-toast";
 
-const AddProductDialog = () => {
+interface AddProductDialogProps {
+  onProductAdded?: () => void;
+}
+
+const AddProductDialog = ({ onProductAdded }: AddProductDialogProps) => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    nombre: "",
+    categoria: "",
+    precio: "",
+    stock: "",
+    descripcion: ""
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    if (!formData.nombre || !formData.categoria || !formData.precio || !formData.stock) {
+      toast({
+        title: "Error",
+        description: "Por favor completa todos los campos obligatorios",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await addProduct({
+        nombre: formData.nombre,
+        categoria: formData.categoria,
+        precio: parseFloat(formData.precio),
+        stock: parseInt(formData.stock),
+        descripcion: formData.descripcion || undefined
+      });
+
+      toast({
+        title: "Éxito",
+        description: "Producto añadido correctamente"
+      });
+
+      setFormData({
+        nombre: "",
+        categoria: "",
+        precio: "",
+        stock: "",
+        descripcion: ""
+      });
+      setOpen(false);
+      onProductAdded?.();
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo añadir el producto",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -45,6 +106,8 @@ const AddProductDialog = () => {
             </Label>
             <Input
               id="name"
+              value={formData.nombre}
+              onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
               placeholder="Nombre del producto"
               className="col-span-3 bg-haven-dark border-white/10"
             />
@@ -53,15 +116,15 @@ const AddProductDialog = () => {
             <Label htmlFor="category" className="text-right">
               Categoría
             </Label>
-            <Select>
+            <Select value={formData.categoria} onValueChange={(value) => setFormData(prev => ({ ...prev, categoria: value }))}>
               <SelectTrigger className="col-span-3 bg-haven-dark border-white/10">
                 <SelectValue placeholder="Seleccionar categoría" />
               </SelectTrigger>
               <SelectContent className="bg-haven-gray border-white/10">
-                <SelectItem value="supplement">Suplemento</SelectItem>
-                <SelectItem value="accessory">Accesorio</SelectItem>
-                <SelectItem value="clothing">Ropa</SelectItem>
-                <SelectItem value="other">Otro</SelectItem>
+                <SelectItem value="Suplemento">Suplemento</SelectItem>
+                <SelectItem value="Accesorio">Accesorio</SelectItem>
+                <SelectItem value="Ropa">Ropa</SelectItem>
+                <SelectItem value="Otro">Otro</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -72,6 +135,8 @@ const AddProductDialog = () => {
             <Input
               id="price"
               type="number"
+              value={formData.precio}
+              onChange={(e) => setFormData(prev => ({ ...prev, precio: e.target.value }))}
               placeholder="0.00"
               className="col-span-3 bg-haven-dark border-white/10"
             />
@@ -83,6 +148,8 @@ const AddProductDialog = () => {
             <Input
               id="stock"
               type="number"
+              value={formData.stock}
+              onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
               placeholder="0"
               className="col-span-3 bg-haven-dark border-white/10"
             />
@@ -93,6 +160,8 @@ const AddProductDialog = () => {
             </Label>
             <Input
               id="description"
+              value={formData.descripcion}
+              onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
               placeholder="Descripción del producto"
               className="col-span-3 bg-haven-dark border-white/10"
             />
@@ -102,8 +171,12 @@ const AddProductDialog = () => {
           <Button variant="outline" onClick={() => setOpen(false)} className="border-white/10 hover:bg-haven-dark">
             Cancelar
           </Button>
-          <Button className="bg-haven-red hover:bg-haven-red/90">
-            Añadir Producto
+          <Button 
+            className="bg-haven-red hover:bg-haven-red/90"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Añadiendo..." : "Añadir Producto"}
           </Button>
         </DialogFooter>
       </DialogContent>
